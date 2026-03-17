@@ -201,8 +201,9 @@ object CommandRegistrar {
      *
      * Commands directly inside the `commands` package are categorised as
      * **"General"**; commands in a subpackage use the first subpackage
-     * segment with its initial letter capitalised (e.g.
-     * `commands.game.StartCommand` → `"Game"`).
+     * segment, split on camelCase boundaries into title-cased words (e.g.
+     * `commands.game.StartCommand` → `"Game"`,
+     * `commands.roleManagement.AssignCommand` → `"Role Management"`).
      */
     private fun extractCategory(clazz: Class<*>): String {
         val packageName = clazz.name.substringBeforeLast('.', "")
@@ -210,9 +211,21 @@ object CommandRegistrar {
         return if (relative.isEmpty()) {
             "General"
         } else {
-            relative.removePrefix(".").split('.').first()
-                .replaceFirstChar { it.uppercase() }
+            val raw = relative.removePrefix(".").split('.').first()
+            formatCamelCase(raw)
         }
+    }
+
+    /**
+     * Converts a camelCase string into space-separated, title-cased words.
+     *
+     * Examples: `"game"` → `"Game"`, `"roleManagement"` → `"Role Management"`.
+     */
+    private fun formatCamelCase(input: String): String {
+        return input
+            .replace(Regex("([a-z])([A-Z])")) { "${it.groupValues[1]} ${it.groupValues[2]}" }
+            .split(' ')
+            .joinToString(" ") { word -> word.replaceFirstChar { it.uppercase() } }
     }
 
     /** Wraps a [PluginCommand] in a Bukkit [Command] suitable for the command map. */
