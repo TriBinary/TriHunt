@@ -31,15 +31,20 @@ The plugin instance is injected automatically when a `JavaPlugin` constructor is
 
 To create a command, extend `PluginCommand` and place the class anywhere inside the `commands` package or a subpackage.
 
+By default every command is registered as a **sub-command** of `/trihunt` (alias `/th`). For example, a command with `name = "reload"` becomes `/trihunt reload`. Set `isMainCommand = true` to register the command as a standalone top-level command instead.
+
+When a player types `/trihunt` in-game, tab-completion automatically lists all available sub-commands.
+
 ### PluginCommand Properties
 
-| Property      | Type           | Default        | Description                                  |
-|:--------------|:---------------|:---------------|:---------------------------------------------|
-| `name`        | `String`       | *(required)*   | The command name (e.g. `"start"` for `/start`) |
-| `description` | `String`       | `""`           | A brief description of what the command does |
-| `usage`       | `String`       | `"/<command>"` | Usage hint shown when the command fails      |
-| `aliases`     | `List<String>` | `emptyList()`  | Alternative names for the command            |
-| `permission`  | `String?`      | `null`         | Permission node required to use the command  |
+| Property        | Type           | Default        | Description                                                                 |
+|:----------------|:---------------|:---------------|:----------------------------------------------------------------------------|
+| `name`          | `String`       | *(required)*   | The command name (e.g. `"reload"` for `/trihunt reload`)                    |
+| `description`   | `String`       | `""`           | A brief description of what the command does                                |
+| `usage`         | `String`       | `"/<command>"` | Usage hint shown when the command fails                                     |
+| `aliases`       | `List<String>` | `emptyList()`  | Alternative names for the command (only used for main commands)              |
+| `permission`    | `String?`      | `null`         | Permission node required to use the command                                 |
+| `isMainCommand` | `Boolean`      | `false`        | When `true`, the command is registered as a standalone top-level command     |
 
 ### Methods to Override
 
@@ -48,7 +53,9 @@ To create a command, extend `PluginCommand` and place the class anywhere inside 
 | `execute`     | Yes      | Called when a player or console runs the command   |
 | `tabComplete` | No       | Called when tab-completion is requested             |
 
-### Example
+### Example (Sub-Command)
+
+This command is registered as `/trihunt ping` (the default behavior):
 
 ```kotlin
 package net.trilleo.mc.plugins.trihunt.commands
@@ -60,7 +67,7 @@ import org.bukkit.entity.Player
 class PingCommand : PluginCommand(
     name = "ping",
     description = "Check your latency",
-    usage = "/ping",
+    usage = "/trihunt ping",
     permission = "trihunt.ping"
 ) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
@@ -74,7 +81,9 @@ class PingCommand : PluginCommand(
 }
 ```
 
-### Example with Tab Completion
+### Example with Tab Completion (Sub-Command)
+
+This command is registered as `/trihunt team`:
 
 ```kotlin
 package net.trilleo.mc.plugins.trihunt.commands.game
@@ -86,15 +95,14 @@ import org.bukkit.entity.Player
 class TeamCommand : PluginCommand(
     name = "team",
     description = "Join a team",
-    usage = "/team <hunters|runners>",
-    aliases = listOf("t"),
+    usage = "/trihunt team <hunters|runners>",
     permission = "trihunt.team"
 ) {
     private val teams = listOf("hunters", "runners")
 
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         if (args.isEmpty() || args[0] !in teams) {
-            sender.sendMessage("Usage: /team <hunters|runners>")
+            sender.sendMessage("Usage: /trihunt team <hunters|runners>")
             return false
         }
         sender.sendMessage("You joined the ${args[0]} team!")
@@ -110,7 +118,9 @@ class TeamCommand : PluginCommand(
 }
 ```
 
-### Example with Plugin Instance
+### Example with Plugin Instance (Sub-Command)
+
+This command is registered as `/trihunt reload`:
 
 ```kotlin
 package net.trilleo.mc.plugins.trihunt.commands
@@ -120,13 +130,37 @@ import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 
 class ReloadCommand(private val plugin: JavaPlugin) : PluginCommand(
-    name = "trihuntreload",
+    name = "reload",
     description = "Reload the plugin configuration",
     permission = "trihunt.reload"
 ) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         plugin.reloadConfig()
         sender.sendMessage("Configuration reloaded!")
+        return true
+    }
+}
+```
+
+### Example (Main Command)
+
+Set `isMainCommand = true` to register a standalone top-level command.
+This command is registered as `/globaltool`:
+
+```kotlin
+package net.trilleo.mc.plugins.trihunt.commands
+
+import net.trilleo.mc.plugins.trihunt.registration.PluginCommand
+import org.bukkit.command.CommandSender
+
+class GlobalToolCommand : PluginCommand(
+    name = "globaltool",
+    description = "A standalone top-level command",
+    usage = "/globaltool",
+    isMainCommand = true
+) {
+    override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
+        sender.sendMessage("Hello from /globaltool!")
         return true
     }
 }
@@ -251,7 +285,7 @@ class SettingsGUI : PluginGUI(
 
 ### Opening a GUI from a Command
 
-A common pattern is opening a GUI when a player runs a command:
+A common pattern is opening a GUI when a player runs a command. This command is registered as `/trihunt settings`:
 
 ```kotlin
 package net.trilleo.mc.plugins.trihunt.commands
