@@ -28,6 +28,34 @@ object CommandRegistrar {
     /** All registered sub-commands, keyed by their name (lower-case). */
     private val subCommands = mutableMapOf<String, PluginCommand>()
 
+    /** Every registered command together with its category for the help display. */
+    private val allCommands = mutableListOf<RegisteredCommandInfo>()
+
+    /**
+     * Holds metadata about a registered command used by the help system.
+     *
+     * @property command      the underlying [PluginCommand] instance
+     * @property category     display-friendly category derived from the source subpackage
+     * @property isSubCommand `true` when the command is a sub-command of `/trihunt`
+     */
+    data class RegisteredCommandInfo(
+        val command: PluginCommand,
+        val category: String,
+        val isSubCommand: Boolean
+    )
+
+    /**
+     * Returns all registered commands grouped by category. Commands within
+     * each category are sorted alphabetically by name; categories themselves
+     * are sorted alphabetically as well.
+     */
+    fun getCommandsByCategory(): Map<String, List<RegisteredCommandInfo>> {
+        return allCommands
+            .groupBy { it.category }
+            .mapValues { (_, cmds) -> cmds.sortedBy { it.command.name.lowercase() } }
+            .toSortedMap()
+    }
+
     /**
      * Scans the commands package, instantiates every [PluginCommand] found,
      * and registers it either as a sub-command of `/trihunt` or as a
@@ -45,6 +73,7 @@ object CommandRegistrar {
         for (commandClass in commandClasses) {
             try {
                 val command = instantiate(commandClass, plugin)
+                val category = extractCategory(commandClass)
                 if (command.isMainCommand) {
                     val bukkitCommand = createBukkitCommand(command)
                     commandMap.register(plugin.name.lowercase(), bukkitCommand)
@@ -55,6 +84,7 @@ object CommandRegistrar {
                     plugin.logger.info("Registered sub-command: /trihunt ${command.name}")
                     subCount++
                 }
+                allCommands.add(RegisteredCommandInfo(command, category, !command.isMainCommand))
             } catch (e: Exception) {
                 plugin.logger.severe(
                     "Failed to register command ${commandClass.simpleName}: ${e.message}"
@@ -163,6 +193,25 @@ object CommandRegistrar {
                 }
                 return emptyList()
             }
+        }
+    }
+
+    /**
+     * Derives a display-friendly category name from the command class's package.
+     *
+     * Commands directly inside the `commands` package are categorised as
+     * **"General"**; commands in a subpackage use the first subpackage
+     * segment with its initial letter capitalised (e.g.
+     * `commands.game.StartCommand` → `"Game"`).
+     */
+    private fun extractCategory(clazz: Class<*>): String {
+        val packageName = clazz.name.substringBeforeLast('.', "")
+        val relative = packageName.removePrefix(COMMANDS_PACKAGE)
+        return if (relative.isEmpty()) {
+            "General"
+        } else {
+            relative.removePrefix(".").split('.').first()
+                .replaceFirstChar { it.uppercase() }
         }
     }
 

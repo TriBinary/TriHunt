@@ -35,12 +35,26 @@ By default every command is registered as a **sub-command** of `/trihunt` (alias
 
 When a player types `/trihunt` in-game, tab-completion automatically lists all available sub-commands.
 
+### Categories
+
+Commands are automatically categorised based on their **subpackage** (folder) inside the `commands` package. The category is used by the built-in `/trihunt help` command to group commands for display.
+
+| Command Location                       | Category    |
+|:---------------------------------------|:------------|
+| `commands/PingCommand.kt`              | General     |
+| `commands/game/StartCommand.kt`        | Game        |
+| `commands/admin/BanCommand.kt`         | Admin       |
+
+### Help Command
+
+The plugin ships with a built-in `/trihunt help` command. It lists every registered command grouped by category, sorted alphabetically within each group, and formatted with colours for readability. Every command should provide a meaningful `description` so the help output is informative.
+
 ### PluginCommand Properties
 
 | Property        | Type           | Default        | Description                                                                 |
 |:----------------|:---------------|:---------------|:----------------------------------------------------------------------------|
 | `name`          | `String`       | *(required)*   | The command name (e.g. `"reload"` for `/trihunt reload`)                    |
-| `description`   | `String`       | `""`           | A brief description of what the command does                                |
+| `description`   | `String`       | `""`           | A brief description shown in `/trihunt help` — always provide one           |
 | `usage`         | `String`       | `"/<command>"` | Usage hint shown when the command fails                                     |
 | `aliases`       | `List<String>` | `emptyList()`  | Alternative names for the command (applicable to main commands only)         |
 | `permission`    | `String?`      | `null`         | Permission node required to use the command                                 |
