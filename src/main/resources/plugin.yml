@@ -2,6 +2,10 @@ name: TriHunt
 main: net.trilleo.mc.plugins.trihunt.Main
 version: ${projectVersion}
 api-version: 1.21
+description: Manhunt plugin for Minecraft.
+author: Trilleo
+website: https://www.trilleo.net/
+database: false
 
 commands:
   trihunt:
