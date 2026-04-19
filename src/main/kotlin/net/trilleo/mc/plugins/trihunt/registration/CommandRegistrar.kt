@@ -25,6 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin
 object CommandRegistrar {
 
     private const val COMMANDS_PACKAGE = "net.trilleo.mc.plugins.trihunt.commands"
+    private const val ROOT_COMMAND = "trihunt"
 
     /** All registered sub-commands, keyed by their name (lower-case). */
     private val subCommands = mutableMapOf<String, PluginCommand>()
@@ -46,6 +47,11 @@ object CommandRegistrar {
     )
 
     /**
+     * Returns an unmodifiable list of all registered commands and their metadata.
+     */
+    fun getAllCommands(): List<RegisteredCommandInfo> = allCommands.toList()
+
+    /**
      * Returns all registered commands grouped by category. Commands within
      * each category are sorted alphabetically by name; categories themselves
      * are sorted alphabetically as well.
@@ -63,6 +69,9 @@ object CommandRegistrar {
      * standalone main command.
      */
     fun registerAll(plugin: JavaPlugin) {
+        subCommands.clear()
+        allCommands.clear()
+
         val commandClasses = PackageScanner.findClasses(
             plugin, COMMANDS_PACKAGE, PluginCommand::class.java
         )
@@ -83,7 +92,7 @@ object CommandRegistrar {
                     mainCount++
                 } else {
                     subCommands[command.name.lowercase()] = command
-                    plugin.logger.info("Registered sub-command: /trihunt ${command.name}")
+                    plugin.logger.info("Registered sub-command: /$ROOT_COMMAND ${command.name}")
                     subCount++
                 }
 
@@ -95,9 +104,9 @@ object CommandRegistrar {
             }
         }
 
-        val parentCommand = plugin.getCommand("trihunt")
+        val parentCommand = plugin.getCommand(ROOT_COMMAND)
         if (parentCommand == null) {
-            plugin.logger.severe("Command 'trihunt' is missing from plugin.yml")
+            plugin.logger.severe("Command '$ROOT_COMMAND' is missing from plugin.yml")
             return
         }
 
@@ -142,7 +151,7 @@ object CommandRegistrar {
 
     private fun executeParentCommand(sender: CommandSender, args: Array<out String>): Boolean {
         if (args.isEmpty()) {
-            sender.sendMessage("Usage: /trihunt <subcommand>")
+            sender.sendMessage("Usage: /$ROOT_COMMAND <subcommand>")
             sender.sendMessage(
                 "Available sub-commands: ${subCommands.keys.sorted().joinToString(", ")}"
             )

@@ -30,7 +30,6 @@ tasks.test {
 
 repositories {
     maven {
-        name = "papermc"
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
 }
@@ -63,11 +62,11 @@ tasks.jar {
 tasks.register<Copy>("copyPlugin") {
     dependsOn("jar")
     from(tasks.jar.get().archiveFile)
-    into("E:\\Minecraft Dev\\Plugins Dev\\Test Paper Server\\plugins")
+    into(layout.projectDirectory.dir("run/plugins"))
 }
 
 tasks.register<JavaExec>("startServer") {
     dependsOn("copyPlugin")
-    workingDir("E:\\Minecraft Dev\\Plugins Dev\\Test Paper Server")
-    classpath("E:\\Minecraft Dev\\Plugins Dev\\Test Paper Server\\paper.jar")
+    workingDir(layout.projectDirectory.dir("run"))
+    classpath(fileTree(layout.projectDirectory.dir("run")) { include("paper-*.jar") })
 }

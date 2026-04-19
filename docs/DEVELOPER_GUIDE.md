@@ -6,11 +6,12 @@ This guide explains how to create **commands**, **listeners**, and **GUIs** usin
 
 TriHunt uses a `PackageScanner` to discover classes at runtime. When the plugin starts, it scans specific packages for concrete (non-abstract) classes and registers them automatically. You never need to edit `plugin.yml` or manually wire anything up.
 
-| System   | Base Class / Interface | Package                                          |
-|:---------|:-----------------------|:-------------------------------------------------|
-| Commands | `PluginCommand`        | `net.trilleo.mc.plugins.trihunt.commands`        |
-| Listeners| `Listener`             | `net.trilleo.mc.plugins.trihunt.listeners`       |
-| GUIs     | `PluginGUI`            | `net.trilleo.mc.plugins.trihunt.guis`            |
+| System      | Base Class / Interface    | Package                                          |
+|:------------|:--------------------------|:-------------------------------------------------|
+| Commands    | `PluginCommand`           | `net.trilleo.mc.plugins.trihunt.commands`        |
+| Permissions | *(derived from commands)* | *(automatic — no package needed)*                |
+| Listeners   | `Listener`                | `net.trilleo.mc.plugins.trihunt.listeners`       |
+| GUIs        | `PluginGUI`               | `net.trilleo.mc.plugins.trihunt.guis`            |
 
 Subpackages are also scanned, so you can freely organize classes into folders like `commands/game/`, `listeners/player/`, or `guis/menus/`.
 
@@ -57,15 +58,28 @@ The plugin ships with a built-in `/trihunt help` command. It lists every registe
 | `description`   | `String`       | `""`           | A brief description shown in `/trihunt help` — always provide one           |
 | `usage`         | `String`       | `"/<command>"` | Usage hint shown when the command fails                                     |
 | `aliases`       | `List<String>` | `emptyList()`  | Alternative names for the command (applicable to main commands only)         |
-| `permission`    | `String?`      | `null`         | Permission node required to use the command                                 |
+| `permission`    | `String?`      | `null`         | Permission node required to use the command (auto-registered at startup)    |
 | `isMainCommand` | `Boolean`      | `false`        | When `true`, the command is registered as a standalone top-level command     |
+
+### Automatic Permission Registration
+
+When the plugin starts, the `PermissionRegistrar` scans every registered command for a non-null `permission` value and
+automatically registers it with Bukkit's `PluginManager`. This means:
+
+* Permissions are visible to permission-management plugins (e.g. LuckPerms) without manual configuration.
+* Each permission defaults to `PermissionDefault.OP` — only operators have it unless explicitly granted.
+* The command's `description` is used as the permission description.
+* Duplicate permissions (already registered by another source) are detected and skipped.
+
+You do **not** need to declare permissions in `plugin.yml`; simply set the `permission` property on your command and the
+system handles the rest.
 
 ### Methods to Override
 
-| Method        | Required | Description                                       |
-|:--------------|:---------|:--------------------------------------------------|
-| `execute`     | Yes      | Called when a player or console runs the command   |
-| `tabComplete` | No       | Called when tab-completion is requested             |
+| Method        | Required | Description                                      |
+|:--------------|:---------|:-------------------------------------------------|
+| `execute`     | Yes      | Called when a player or console runs the command |
+| `tabComplete` | No       | Called when tab-completion is requested          |
 
 ### Example (Sub-Command)
 
@@ -237,11 +251,11 @@ To create a GUI (chest-based inventory menu), extend `PluginGUI` and place the c
 
 ### PluginGUI Properties
 
-| Property | Type     | Default      | Description                             |
-|:---------|:---------|:-------------|:----------------------------------------|
-| `id`     | `String` | *(required)* | Unique identifier used to open the GUI  |
-| `title`  | `String` | *(required)* | Title displayed at the top of the chest |
-| `rows`   | `Int`    | `3`          | Number of rows (1–6, each row = 9 slots)|
+| Property | Type        | Default      | Description                              |
+|:---------|:------------|:-------------|:-----------------------------------------|
+| `id`     | `String`    | *(required)* | Unique identifier used to open the GUI   |
+| `title`  | `Component` | *(required)* | Title displayed at the top of the chest  |
+| `rows`   | `Int`       | `3`          | Number of rows (1–6, each row = 9 slots) |
 
 ### Methods to Override
 
@@ -268,6 +282,7 @@ GUIManager.open(player, "settings")
 package net.trilleo.mc.plugins.trihunt.guis
 
 import net.trilleo.mc.plugins.trihunt.registration.PluginGUI
+import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -276,13 +291,13 @@ import org.bukkit.inventory.ItemStack
 
 class SettingsGUI : PluginGUI(
     id = "settings",
-    title = "Settings",
+    title = Component.text("Settings"),
     rows = 3
 ) {
     override fun setup(player: Player, inventory: Inventory) {
         val compass = ItemStack(Material.COMPASS)
         val meta = compass.itemMeta
-        meta.displayName(net.kyori.adventure.text.Component.text("Tracker"))
+        meta.displayName(Component.text("Tracker"))
         compass.itemMeta = meta
         inventory.setItem(13, compass)
     }
@@ -320,6 +335,110 @@ class SettingsCommand : PluginCommand(
             return true
         }
         GUIManager.open(sender, "settings")
+        return true
+    }
+}
+```
+
+---
+
+## Paged GUIs
+
+To create a multi-page inventory menu with automatic navigation, extend `PagedPluginGUI` and place the class anywhere
+inside the `guis` package or a subpackage. `PagedPluginGUI` is a subclass of `PluginGUI` that handles page state per
+player and renders **Previous** / **Next** buttons automatically.
+
+The bottom row of the inventory is reserved for navigation controls. Content slots are every slot except the last row.
+For example, a 6-row GUI provides 45 content slots per page (rows 1–5).
+
+### PagedPluginGUI Properties
+
+`PagedPluginGUI` inherits all properties from `PluginGUI`:
+
+| Property | Type        | Default      | Description                              |
+|:---------|:------------|:-------------|:-----------------------------------------|
+| `id`     | `String`    | *(required)* | Unique identifier used to open the GUI   |
+| `title`  | `Component` | *(required)* | Title displayed at the top of the chest  |
+| `rows`   | `Int`       | `6`          | Number of rows (2–6, each row = 9 slots) |
+
+### Methods to Override
+
+| Method           | Required | Description                                                      |
+|:-----------------|:---------|:-----------------------------------------------------------------|
+| `getItems`       | Yes      | Return the full list of items to paginate for a player           |
+| `onContentClick` | No       | Handle clicks on content slots (clicks are cancelled by default) |
+
+You do **not** need to override `setup`, `onClick`, or `onClose` — `PagedPluginGUI` handles them internally for
+pagination. If you need custom close logic, override `onClose` and call `super.onClose(event)` to ensure page state
+is cleaned up.
+
+### Navigation Layout
+
+The last row of the inventory contains:
+
+| Slot (in last row) | Item  | Description                                  |
+|:-------------------|:------|:---------------------------------------------|
+| 0                  | Arrow | **Previous Page** — hidden on the first page |
+| 4                  | Paper | **Page indicator** — displays "Page X/Y"     |
+| 8                  | Arrow | **Next Page** — hidden on the last page      |
+
+### Example
+
+```kotlin
+package net.trilleo.mc.plugins.trihunt.guis
+
+import net.trilleo.mc.plugins.trihunt.registration.PagedPluginGUI
+import net.kyori.adventure.text.Component
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.ItemStack
+
+class RewardsGUI : PagedPluginGUI(
+    id = "rewards",
+    title = Component.text("Rewards"),
+    rows = 6
+) {
+    override fun getItems(player: Player): List<ItemStack> {
+        return List(100) { index ->
+            val item = ItemStack(Material.DIAMOND)
+            val meta = item.itemMeta
+            meta.displayName(Component.text("Reward #${index + 1}"))
+            item.itemMeta = meta
+            item
+        }
+    }
+
+    override fun onContentClick(event: InventoryClickEvent, page: Int) {
+        val player = event.whoClicked as? Player ?: return
+        player.sendMessage("You clicked slot ${event.slot} on page ${page + 1}!")
+    }
+}
+```
+
+### Opening a Paged GUI from a Command
+
+Paged GUIs are opened the same way as regular GUIs, using `GUIManager.open(player, id)`:
+
+```kotlin
+package net.trilleo.mc.plugins.trihunt.commands
+
+import net.trilleo.mc.plugins.trihunt.registration.GUIManager
+import net.trilleo.mc.plugins.trihunt.registration.PluginCommand
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
+
+class RewardsCommand : PluginCommand(
+    name = "rewards",
+    description = "Browse available rewards",
+    permission = "trihunt.rewards"
+) {
+    override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
+        if (sender !is Player) {
+            sender.sendMessage("This command can only be used by players.")
+            return true
+        }
+        GUIManager.open(sender, "rewards")
         return true
     }
 }
