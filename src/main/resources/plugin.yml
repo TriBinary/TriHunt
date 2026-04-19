@@ -1,7 +1,7 @@
 name: TriHunt
 main: net.trilleo.mc.plugins.trihunt.Main
 version: 0.1.0
-api-version: 26
+api-version: 1.21
 
 commands:
   trihunt:
