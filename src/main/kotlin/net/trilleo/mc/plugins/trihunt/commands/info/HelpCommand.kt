@@ -6,7 +6,6 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.trilleo.mc.plugins.trihunt.registration.CommandRegistrar
 import net.trilleo.mc.plugins.trihunt.registration.PluginCommand
 import org.bukkit.command.CommandSender
-import kotlin.collections.iterator
 
 class HelpCommand : PluginCommand(
     name = "help",
