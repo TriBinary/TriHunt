@@ -2,12 +2,14 @@ package net.trilleo.mc.plugins.trihunt.registration
 
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -64,6 +66,7 @@ object GUIManager : Listener {
     fun open(player: Player, id: String): Boolean {
         val gui = guis[id] ?: return false
         val inventory = Bukkit.createInventory(null, gui.rows * 9, gui.title)
+        fillInventory(gui, inventory)
         gui.setup(player, inventory)
         openGUIs[player] = Pair(gui, inventory)
         player.openInventory(inventory)
@@ -114,6 +117,26 @@ object GUIManager : Listener {
                         "or a constructor accepting a single JavaPlugin parameter"
                 )
             }
+        }
+    }
+
+    /**
+     * Pre-fills all slots in [inventory] with a filler glass pane determined
+     * by the GUI's [FillMode].  Does nothing when the mode is [FillMode.NONE].
+     */
+    private fun fillInventory(gui: PluginGUI, inventory: Inventory) {
+        val material = when (gui.fillMode) {
+            FillMode.LIGHT -> Material.WHITE_STAINED_GLASS_PANE
+            FillMode.DARK  -> Material.BLACK_STAINED_GLASS_PANE
+            FillMode.NONE  -> return
+        }
+        val filler = ItemStack(material).also { item ->
+            val meta = item.itemMeta
+            meta.displayName(net.kyori.adventure.text.Component.empty())
+            item.itemMeta = meta
+        }
+        for (slot in 0 until inventory.size) {
+            inventory.setItem(slot, filler.clone())
         }
     }
 }

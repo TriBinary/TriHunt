@@ -270,11 +270,20 @@ or a subpackage.
 
 ### PluginGUI Properties
 
-| Property | Type        | Default      | Description                              |
-|:---------|:------------|:-------------|:-----------------------------------------|
-| `id`     | `String`    | *(required)* | Unique identifier used to open the GUI   |
-| `title`  | `Component` | *(required)* | Title displayed at the top of the chest  |
-| `rows`   | `Int`       | `3`          | Number of rows (1–6, each row = 9 slots) |
+| Property   | Type        | Default         | Description                                                      |
+|:-----------|:------------|:----------------|:-----------------------------------------------------------------|
+| `id`       | `String`    | *(required)*    | Unique identifier used to open the GUI                           |
+| `title`    | `Component` | *(required)*    | Title displayed at the top of the chest                          |
+| `rows`     | `Int`       | `3`             | Number of rows (1–6, each row = 9 slots)                         |
+| `fillMode` | `FillMode`  | `FillMode.NONE` | Controls how empty slots are pre-filled before `setup` is called |
+
+#### FillMode values
+
+| Value            | Filler item              | Description                                                                    |
+|:-----------------|:-------------------------|:-------------------------------------------------------------------------------|
+| `FillMode.NONE`  | *(none)*                 | No filler is placed; the inventory is left empty before `setup` is called      |
+| `FillMode.LIGHT` | White stained glass pane | All slots are pre-filled with white glass before `setup` — override in `setup` |
+| `FillMode.DARK`  | Black stained glass pane | All slots are pre-filled with black glass before `setup` — override in `setup` |
 
 ### Methods to Override
 
@@ -300,6 +309,7 @@ GUIManager.open(player, "settings")
 ```kotlin
 package net.trilleo.mc.plugins.trihunt.guis
 
+import net.trilleo.mc.plugins.trihunt.registration.FillMode
 import net.trilleo.mc.plugins.trihunt.registration.PluginGUI
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
@@ -311,7 +321,8 @@ import org.bukkit.inventory.ItemStack
 class SettingsGUI : PluginGUI(
     id = "settings",
     title = Component.text("Settings"),
-    rows = 3
+    rows = 3,
+    fillMode = FillMode.DARK
 ) {
     override fun setup(player: Player, inventory: Inventory) {
         val compass = ItemStack(Material.COMPASS)

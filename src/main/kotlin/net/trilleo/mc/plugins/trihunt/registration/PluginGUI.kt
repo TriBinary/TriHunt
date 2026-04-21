@@ -27,8 +27,9 @@ import org.bukkit.inventory.Inventory
  *
  * class SettingsGUI : PluginGUI(
  *     id = "settings",
- *     title = "Settings",
- *     rows = 3
+ *     title = Component.text("Settings"),
+ *     rows = 3,
+ *     fillMode = FillMode.DARK
  * ) {
  *     override fun setup(player: Player, inventory: Inventory) {
  *         inventory.setItem(13, ItemStack(Material.COMPASS))
@@ -44,7 +45,8 @@ import org.bukkit.inventory.Inventory
 abstract class PluginGUI(
     val id: String,
     val title: Component,
-    val rows: Int = 3
+    val rows: Int = 3,
+    val fillMode: FillMode = FillMode.NONE
 ) {
 
     /**

@@ -37,7 +37,8 @@ import java.util.UUID
  * class RewardsGUI : PagedPluginGUI(
  *     id = "rewards",
  *     title = Component.text("Rewards"),
- *     rows = 6
+ *     rows = 6,
+ *     fillMode = FillMode.NONE
  * ) {
  *     override fun getItems(player: Player): List<ItemStack> {
  *         return List(100) { index ->
@@ -54,8 +55,9 @@ import java.util.UUID
 abstract class PagedPluginGUI(
     id: String,
     title: Component,
-    rows: Int = 6
-) : PluginGUI(id, title, rows) {
+    rows: Int = 6,
+    fillMode: FillMode = FillMode.NONE
+) : PluginGUI(id, title, rows, fillMode) {
 
     /** Tracks the current page for each player viewing this GUI. */
     private val playerPages = mutableMapOf<UUID, Int>()
@@ -153,9 +155,9 @@ abstract class PagedPluginGUI(
             inventory.setItem(i - start, items[i])
         }
 
-        // Navigation row – fill all slots with white stained glass panes first
+        // Navigation row – fill all slots with gray stained glass panes first
         for (offset in 0 until ROW_SIZE) {
-            inventory.setItem(navRowStart + offset, createNavItem(Material.WHITE_STAINED_GLASS_PANE, Component.empty()))
+            inventory.setItem(navRowStart + offset, createNavItem(Material.GRAY_STAINED_GLASS_PANE, Component.empty()))
         }
 
         // Place navigation items on top of the filler
