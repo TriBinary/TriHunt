@@ -476,6 +476,526 @@ class RewardsCommand : PluginCommand(
 
 ---
 
+## Adventure Library
+
+Paper bundles the [Kyori Adventure](https://docs.advntr.dev/) library, so no extra dependency is required. Adventure
+replaces the legacy Bukkit chat API and provides rich, structured text through immutable `Component` objects, as well
+as APIs for titles, boss bars, sounds, and more.
+
+### Component
+
+`Component` is the core type. All text displayed to players must be a `Component`. The most common factory is
+`Component.text(...)`, which accepts an optional colour and decoration inline:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
+
+// Plain text
+val plain = Component.text("Hello, world!")
+
+// Coloured text
+val coloured = Component.text("Hello, world!", NamedTextColor.GREEN)
+
+// Bold + coloured text
+val bold = Component.text("Hello, world!", NamedTextColor.GOLD, TextDecoration.BOLD)
+```
+
+#### Additional Component Factory Methods
+
+| Factory                            | Description                                                              |
+|:-----------------------------------|:-------------------------------------------------------------------------|
+| `Component.empty()`                | A component with no content — useful as a neutral base to `.append()` to |
+| `Component.newline()`              | A line-break component                                                   |
+| `Component.space()`                | A single space                                                           |
+| `Component.text(String)`           | Plain text component                                                     |
+| `Component.translatable(String)`   | A Minecraft translation key (e.g. `"block.minecraft.dirt"`)              |
+| `Component.keybind(String)`        | Displays the key bound to an action (e.g. `"key.jump"`)                  |
+| `Component.join(separator, parts)` | Joins a list of components with a separator between each one             |
+
+##### `Component.translatable` Example
+
+`Component.translatable` renders using the player's own client language:
+
+```kotlin
+import net.kyori.adventure.text.Component
+
+// Displays the item's translated name in the player's language
+val dirtName = Component.translatable("block.minecraft.dirt")
+sender.sendMessage(dirtName)
+```
+
+##### `Component.keybind` Example
+
+`Component.keybind` renders as the key the player has bound to a given action:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+
+// Shows "Press [Space] to jump!" where [Space] adapts to the player's key binding
+val hint = Component.text("Press ", NamedTextColor.GRAY)
+    .append(Component.keybind("key.jump", NamedTextColor.YELLOW))
+    .append(Component.text(" to jump!", NamedTextColor.GRAY))
+sender.sendMessage(hint)
+```
+
+##### `Component.join` Example
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.JoinConfiguration
+import net.kyori.adventure.text.format.NamedTextColor
+
+val items = listOf(
+    Component.text("Sword", NamedTextColor.RED),
+    Component.text("Shield", NamedTextColor.BLUE),
+    Component.text("Bow", NamedTextColor.GREEN)
+)
+// "Sword, Shield, Bow"
+val list = Component.join(JoinConfiguration.separator(Component.text(", ")), items)
+sender.sendMessage(list)
+```
+
+#### NamedTextColor
+
+`NamedTextColor` exposes the 16 standard Minecraft colours as constants:
+
+| Constant       | In-game appearance |
+|:---------------|:-------------------|
+| `BLACK`        | Black              |
+| `DARK_BLUE`    | Dark Blue          |
+| `DARK_GREEN`   | Dark Green         |
+| `DARK_AQUA`    | Dark Aqua          |
+| `DARK_RED`     | Dark Red           |
+| `DARK_PURPLE`  | Dark Purple        |
+| `GOLD`         | Gold               |
+| `GRAY`         | Gray               |
+| `DARK_GRAY`    | Dark Gray          |
+| `BLUE`         | Blue               |
+| `GREEN`        | Green              |
+| `AQUA`         | Aqua               |
+| `RED`          | Red                |
+| `LIGHT_PURPLE` | Light Purple       |
+| `YELLOW`       | Yellow             |
+| `WHITE`        | White              |
+
+#### TextColor (Hex / RGB)
+
+For colours beyond the 16 named constants, use `TextColor`:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
+
+// From a hex string
+val orange = TextColor.fromHexString("#FF8C00")!!
+val msg = Component.text("This is orange!", orange)
+
+// From RGB values (0–255 each)
+val custom = TextColor.color(135, 206, 235) // sky blue
+val sky = Component.text("Sky blue text", custom)
+```
+
+#### TextDecoration
+
+`TextDecoration` applies visual styles to a component:
+
+| Constant        | Effect              |
+|:----------------|:--------------------|
+| `BOLD`          | Bold text           |
+| `ITALIC`        | Italic text         |
+| `UNDERLINED`    | Underlined text     |
+| `STRIKETHROUGH` | Strikethrough text  |
+| `OBFUSCATED`    | Obfuscated (matrix) |
+
+Decorations can be combined by chaining `.decorate(...)` calls:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
+
+val fancy = Component.text("Important!", NamedTextColor.RED)
+    .decorate(TextDecoration.BOLD)
+    .decorate(TextDecoration.UNDERLINED)
+```
+
+### Style
+
+`Style` bundles a colour, decorations, click event, and hover event into a reusable object. Apply it to a component
+with `.style(Style)` or pass it directly to `Component.text`:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextDecoration
+
+val headerStyle = Style.style(
+    NamedTextColor.GOLD,
+    TextDecoration.BOLD
+)
+
+val header = Component.text("TriHunt", headerStyle)
+sender.sendMessage(header)
+```
+
+Build a `Style` with multiple properties using the builder:
+
+```kotlin
+import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.event.HoverEvent
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextDecoration
+
+val linkStyle = Style.style { builder ->
+    builder.color(NamedTextColor.AQUA)
+    builder.decoration(TextDecoration.UNDERLINED, true)
+    builder.clickEvent(ClickEvent.openUrl("https://papermc.io"))
+    builder.hoverEvent(HoverEvent.showText(Component.text("Visit Paper docs")))
+}
+```
+
+### Chaining Components
+
+Use `.append(Component)` to concatenate multiple styled segments into one message:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
+
+val message = Component.text("[TriHunt] ", NamedTextColor.GOLD, TextDecoration.BOLD)
+    .append(Component.text("Welcome to the server!", NamedTextColor.YELLOW))
+
+sender.sendMessage(message)
+```
+
+### Sending Messages
+
+Both `CommandSender` (players and the console) and `Player` accept a `Component` directly via `sendMessage`:
+
+```kotlin
+// From a command
+sender.sendMessage(Component.text("Command executed!", NamedTextColor.GREEN))
+
+// From a listener
+event.player.sendMessage(Component.text("You joined!", NamedTextColor.AQUA))
+```
+
+To broadcast a message to every online player, use the Bukkit server instance:
+
+```kotlin
+import org.bukkit.Bukkit
+
+Bukkit.broadcast(Component.text("Server announcement!", NamedTextColor.GOLD))
+```
+
+### ClickEvent
+
+A `ClickEvent` makes a component interactive when clicked in the chat window. Attach one with `.clickEvent(...)`:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
+
+// Run a command when clicked
+val runCmd = Component.text("[Click to teleport]", NamedTextColor.GREEN)
+    .clickEvent(ClickEvent.runCommand("/tp spawn"))
+
+// Pre-fill the chat bar with a command (player still has to press Enter)
+val suggest = Component.text("[Click to reply]", NamedTextColor.YELLOW)
+    .clickEvent(ClickEvent.suggestCommand("/msg Steve "))
+
+// Open a URL in the player's browser
+val link = Component.text("[Open website]", NamedTextColor.AQUA, TextDecoration.UNDERLINED)
+    .clickEvent(ClickEvent.openUrl("https://papermc.io"))
+
+// Copy text to the player's clipboard
+val copy = Component.text("[Copy server IP]", NamedTextColor.GRAY)
+    .clickEvent(ClickEvent.copyToClipboard("play.example.com"))
+
+sender.sendMessage(runCmd)
+```
+
+#### ClickEvent Actions
+
+| Factory method                       | Effect                                      |
+|:-------------------------------------|:--------------------------------------------|
+| `ClickEvent.runCommand(String)`      | Executes the command as the player          |
+| `ClickEvent.suggestCommand(String)`  | Places the string in the player's chat bar  |
+| `ClickEvent.openUrl(String)`         | Opens a URL in the player's default browser |
+| `ClickEvent.copyToClipboard(String)` | Copies the string to the player's clipboard |
+| `ClickEvent.changePage(Int)`         | Changes the page of an open book            |
+
+### HoverEvent
+
+A `HoverEvent` displays a tooltip when the player hovers over the component. Attach one with `.hoverEvent(...)`:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.event.HoverEvent
+import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
+
+// Show a text tooltip
+val withHover = Component.text("Hover over me!", NamedTextColor.GREEN)
+    .hoverEvent(
+        HoverEvent.showText(
+            Component.text("This is a tooltip!", NamedTextColor.GRAY)
+        )
+    )
+
+// Show an item tooltip (displays the item's name, lore, and stats)
+val diamond = ItemStack(Material.DIAMOND)
+val withItemHover = Component.text("A diamond", NamedTextColor.AQUA)
+    .hoverEvent(diamond.asHoverEvent())
+
+sender.sendMessage(withHover)
+```
+
+#### HoverEvent Actions
+
+| Factory method                   | Effect                                 |
+|:---------------------------------|:---------------------------------------|
+| `HoverEvent.showText(Component)` | Shows a rich-text tooltip              |
+| `ItemStack.asHoverEvent()`       | Shows the item's name, lore, and stats |
+| `Entity.asHoverEvent()`          | Shows the entity's name and UUID       |
+
+### MiniMessage
+
+[MiniMessage](https://docs.advntr.dev/minimessage/index.html) is a string-based format that lets you express rich
+text with lightweight tags. The `ItemStack` DSL uses it internally, and you can use it anywhere you need to parse
+user-facing strings (e.g. from `config.yml`) into `Component` objects.
+
+```kotlin
+import net.kyori.adventure.text.minimessage.MiniMessage
+
+val mm = MiniMessage.miniMessage()
+
+// Colour
+val red = mm.deserialize("<red>This is red text")
+
+// Bold + gradient
+val fancy = mm.deserialize("<bold><gradient:gold:yellow>Fancy Title</gradient></bold>")
+
+// Multiple colours in one line
+val mixed = mm.deserialize("<green>Success: <white>operation completed")
+
+sender.sendMessage(fancy)
+```
+
+#### MiniMessage with Placeholders
+
+Use `TagResolver` to inject dynamic values into a MiniMessage string at runtime:
+
+```kotlin
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
+
+val mm = MiniMessage.miniMessage()
+
+val message = mm.deserialize(
+    "<gold>Welcome, <player>! You have <coins> coins.",
+    Placeholder.unparsed("player", player.name),
+    Placeholder.unparsed("coins", "500")
+)
+player.sendMessage(message)
+```
+
+#### Common MiniMessage Tags
+
+| Tag                              | Effect                                          |
+|:---------------------------------|:------------------------------------------------|
+| `<color_name>` / `<red>`         | Named colour (same names as `NamedTextColor`)   |
+| `<#RRGGBB>`                      | Hex colour                                      |
+| `<bold>`, `<b>`                  | Bold                                            |
+| `<italic>`, `<i>`                | Italic                                          |
+| `<underlined>`, `<u>`            | Underline                                       |
+| `<strikethrough>`, `<st>`        | Strikethrough                                   |
+| `<obfuscated>`, `<obf>`          | Obfuscated                                      |
+| `<gradient:color1:color2>`       | Smooth gradient between two or more colours     |
+| `<rainbow>`                      | Full rainbow gradient across the text           |
+| `<reset>`                        | Reset all active styles                         |
+| `<newline>` / `<br>`             | Line break                                      |
+| `<click:run_command:/cmd>`       | Clickable text that runs a command              |
+| `<click:suggest_command:/cmd>`   | Clickable text that fills the chat bar          |
+| `<click:open_url:https://...>`   | Clickable text that opens a URL                 |
+| `<click:copy_to_clipboard:text>` | Clickable text that copies to clipboard         |
+| `<hover:show_text:'tooltip'>`    | Text shown when the cursor hovers over the line |
+| `<keybind:key.jump>`             | Renders the player's bound key for an action    |
+| `<lang:block.minecraft.dirt>`    | Renders a Minecraft translation key             |
+
+### Title
+
+Display a large on-screen title and subtitle to a player with the Adventure `Title` API:
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.title.Title
+import java.time.Duration
+
+val title = Title.title(
+    Component.text("Game Over", NamedTextColor.RED),           // main title
+    Component.text("You were eliminated!", NamedTextColor.GRAY), // subtitle
+    Title.Times.times(
+        Duration.ofMillis(500),   // fade-in
+        Duration.ofSeconds(3),    // stay
+        Duration.ofMillis(500)    // fade-out
+    )
+)
+
+player.showTitle(title)
+```
+
+To clear an active title before it finishes:
+
+```kotlin
+player.clearTitle()
+```
+
+To reset the title display timings back to their defaults:
+
+```kotlin
+player.resetTitle()
+```
+
+### Action Bar
+
+The action bar is the text that appears just above the hotbar. It disappears on its own after a couple of seconds.
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+
+player.sendActionBar(
+    Component.text("⚔ 10 kills", NamedTextColor.GOLD)
+)
+```
+
+### Boss Bar
+
+A boss bar is the coloured progress bar shown at the top of the screen. Create one, customise it, then add players:
+
+```kotlin
+import net.kyori.adventure.bossbar.BossBar
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+
+val bar = BossBar.bossBar(
+    Component.text("Boss Fight!", NamedTextColor.RED), // name
+    1.0f,                                               // progress (0.0–1.0)
+    BossBar.Color.RED,                                  // bar colour
+    BossBar.Overlay.PROGRESS                            // bar style
+)
+
+// Show to a player
+player.showBossBar(bar)
+
+// Update the progress (e.g. based on boss HP)
+bar.progress(0.5f)
+
+// Update the title
+bar.name(Component.text("50% HP remaining", NamedTextColor.YELLOW))
+
+// Hide from a player
+player.hideBossBar(bar)
+```
+
+#### BossBar.Color Options
+
+| Constant | Bar colour |
+|:---------|:-----------|
+| `PINK`   | Pink       |
+| `BLUE`   | Blue       |
+| `RED`    | Red        |
+| `GREEN`  | Green      |
+| `YELLOW` | Yellow     |
+| `PURPLE` | Purple     |
+| `WHITE`  | White      |
+
+#### BossBar.Overlay Options
+
+| Constant     | Appearance                         |
+|:-------------|:-----------------------------------|
+| `PROGRESS`   | Solid bar (no notches)             |
+| `NOTCHED_6`  | Bar split into 6 notched segments  |
+| `NOTCHED_10` | Bar split into 10 notched segments |
+| `NOTCHED_12` | Bar split into 12 notched segments |
+| `NOTCHED_20` | Bar split into 20 notched segments |
+
+### Sound
+
+Play a sound to a player at their location using the Adventure `Sound` API:
+
+```kotlin
+import net.kyori.adventure.sound.Sound
+import net.kyori.adventure.key.Key
+
+// Play a named sound at the player's position
+player.playSound(
+    Sound.sound(
+        Key.key("minecraft:entity.player.levelup"), // sound key
+        Sound.Source.PLAYER,                         // source category
+        1.0f,                                        // volume
+        1.0f                                         // pitch
+    )
+)
+```
+
+You can also use `net.kyori.adventure.sound.Sound.Source` to control which Minecraft audio channel the sound plays on:
+
+| Source    | Channel shown in game settings |
+|:----------|:-------------------------------|
+| `MASTER`  | Master                         |
+| `MUSIC`   | Music                          |
+| `RECORD`  | Jukebox/Note Blocks            |
+| `WEATHER` | Weather                        |
+| `BLOCK`   | Blocks                         |
+| `HOSTILE` | Hostile Creatures              |
+| `NEUTRAL` | Friendly Creatures             |
+| `PLAYER`  | Players                        |
+| `AMBIENT` | Ambient/Environment            |
+| `VOICE`   | Voice/Speech                   |
+
+Stop all sounds currently playing for a player:
+
+```kotlin
+import net.kyori.adventure.sound.SoundStop
+
+player.stopSound(SoundStop.all())
+```
+
+### Tab-List Header and Footer
+
+Set the header and footer shown in the player list (Tab key):
+
+```kotlin
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
+
+player.sendPlayerListHeaderAndFooter(
+    Component.text("TriHunt Server", NamedTextColor.GOLD, TextDecoration.BOLD),
+    Component.text("${player.ping}ms", NamedTextColor.GRAY)
+)
+```
+
+To clear the header and footer, pass empty components:
+
+```kotlin
+player.sendPlayerListHeaderAndFooter(Component.empty(), Component.empty())
+```
+
+---
+
 ## ItemStack Builder DSL
 
 Building `ItemStack` instances with custom names, lore, enchantments, and flags normally requires verbose
