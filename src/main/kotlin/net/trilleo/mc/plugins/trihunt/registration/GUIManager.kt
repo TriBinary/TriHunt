@@ -1,6 +1,7 @@
 package net.trilleo.mc.plugins.trihunt.registration
 
 import net.trilleo.mc.plugins.trihunt.enums.FillMode
+import net.trilleo.mc.plugins.trihunt.utils.itemStack
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -130,10 +131,9 @@ object GUIManager : Listener {
             FillMode.DARK -> Material.BLACK_STAINED_GLASS_PANE
             FillMode.NONE -> return
         }
-        val filler = ItemStack(material).also { item ->
-            val meta = item.itemMeta
-            meta.displayName(net.kyori.adventure.text.Component.empty())
-            item.itemMeta = meta
+        val filler = itemStack(material) {
+            name(" ")
+            hideTooltip(true)
         }
         for (slot in 0 until inventory.size) {
             inventory.setItem(slot, filler.clone())
