@@ -1,6 +1,7 @@
 # TriHunt - Developer Guide
 
-This guide explains how to create **commands**, **listeners**, **GUIs**, **tasks**, and work with the **configuration** system
+This guide explains how to create **commands**, **listeners**, **GUIs**, **tasks**, and work with the **configuration**
+system
 using TriHunt's registration system. Commands, listeners, GUIs, and tasks all follow the same pattern: extend a base
 class (or implement an interface), place the file in the correct package, and the plugin handles the rest
 automatically at startup. The configuration system provides typed access to `config.yml` values.

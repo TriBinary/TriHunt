@@ -1,8 +1,10 @@
 # TriHunt - Commit Structure
 
-To maintain a clean and organized codebase, all developers must follow the standardized commit message format. This ensures that changes to features are easy to track.
+To maintain a clean and organized codebase, all developers must follow the standardized commit message format. This
+ensures that changes to features are easy to track.
 
 ## Basic Structure
+
 Every commit message must follow this syntax:
 `<tag>: <message>`
 
@@ -18,6 +20,7 @@ Every commit message must follow this syntax:
 | **Update**      | Plugin version changes.                             | `Update: 1.0.0 release`                          |
 
 ## Best Practices
+
 * **Use Present Tense:** Write "Add feature" instead of "Added feature."
 * **Be Specific:** Instead of `Fix: bug`, use `Fix: Handle undefined member in /role command`.
 * **No Period at End:** Do not end the commit message with a period.
