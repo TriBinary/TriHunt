@@ -44,18 +44,28 @@ class ItemStackBuilder(@PublishedApi internal val material: Material) {
 
     @PublishedApi
     internal var itemAmount: Int = 1
+
     @PublishedApi
     internal var displayName: String? = null
+
     @PublishedApi
     internal var loreLines: List<String>? = null
+
     @PublishedApi
     internal var enchantments: MutableMap<Enchantment, Int> = mutableMapOf()
+
     @PublishedApi
     internal var isUnbreakable: Boolean = false
+
+    @PublishedApi
+    internal var isHideTooltip: Boolean = false
+
     @PublishedApi
     internal var itemFlags: MutableList<ItemFlag> = mutableListOf()
+
     @PublishedApi
     internal var modelData: Int? = null
+
     @PublishedApi
     internal var metaBlock: (ItemMeta.() -> Unit)? = null
 
@@ -96,6 +106,15 @@ class ItemStackBuilder(@PublishedApi internal val material: Material) {
      */
     fun unbreakable(value: Boolean) {
         this.isUnbreakable = value
+    }
+
+    /**
+     * Sets whether to show the tooltip.
+     *
+     * @param value `true` to hide the tooltip
+     */
+    fun hideTooltip(value: Boolean) {
+        this.isHideTooltip = value
     }
 
     /**
@@ -151,6 +170,7 @@ class ItemStackBuilder(@PublishedApi internal val material: Material) {
         loreLines?.let { lines -> meta.lore(lines.map { miniMessage.deserialize("<reset><i:false>$it") }) }
         enchantments.forEach { (enchant, level) -> meta.addEnchant(enchant, level, true) }
         meta.isUnbreakable = isUnbreakable
+        meta.isHideTooltip = isHideTooltip
         if (itemFlags.isNotEmpty()) meta.addItemFlags(*itemFlags.toTypedArray())
         modelData?.let { meta.setCustomModelData(it) }
         metaBlock?.invoke(meta)

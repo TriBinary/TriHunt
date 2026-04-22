@@ -61,6 +61,7 @@ val item = itemStack(Material.DIAMOND_SWORD) {
 | `lore`            | `lore(vararg String)`       | Set lore lines (each parsed with MiniMessage)   |
 | `enchant`         | `enchant(Enchantment, Int)` | Add an enchantment at the given level           |
 | `unbreakable`     | `unbreakable(Boolean)`      | Make the item unbreakable                       |
+| `hideTooltip`     | `hideTooltip(Boolean)`      | Hide the tooltip                                |
 | `amount`          | `amount(Int)`               | Set the stack size                              |
 | `flag`            | `flag(vararg ItemFlag)`     | Add one or more item flags                      |
 | `customModelData` | `customModelData(Int)`      | Set the custom model data value                 |
@@ -103,15 +104,15 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 
 CountdownUtil().start(
-    plugin          = plugin,
-    player          = player,
-    seconds         = 10,
+    plugin = plugin,
+    player = player,
+    seconds = 10,
     displayLocation = DisplayLocation.ACTION_BAR,
-    message         = "<yellow>Starting in <bold>{seconds}</bold> (<gray>{time}</gray>)",
-    finishMessage   = "<green>Go!",
-    sound           = Sound.sound(Key.key("minecraft:ui.button.click"), Sound.Source.MASTER, 1f, 1f),
-    finishSound     = Sound.sound(Key.key("minecraft:entity.player.levelup"), Sound.Source.MASTER, 1f, 1f),
-    onFinish        = { p -> p.sendMessage("Started!") }
+    message = "<yellow>Starting in <bold>{seconds}</bold> (<gray>{time}</gray>)",
+    finishMessage = "<green>Go!",
+    sound = Sound.sound(Key.key("minecraft:ui.button.click"), Sound.Source.MASTER, 1f, 1f),
+    finishSound = Sound.sound(Key.key("minecraft:entity.player.levelup"), Sound.Source.MASTER, 1f, 1f),
+    onFinish = { p -> p.sendMessage("Started!") }
 )
 ```
 
@@ -148,13 +149,13 @@ import net.trilleo.mc.plugins.trihunt.utils.CountdownUtil
 import net.trilleo.mc.plugins.trihunt.enums.DisplayLocation
 
 CountdownUtil().start(
-    plugin          = plugin,
-    player          = player,
-    seconds         = 5,
+    plugin = plugin,
+    player = player,
+    seconds = 5,
     displayLocation = DisplayLocation.CHAT,
-    message         = "<gray>Game starts in <yellow>{seconds}",
-    finishMessage   = "<green><bold>Game started!",
-    onFinish        = { p -> p.sendMessage("Good luck!") }
+    message = "<gray>Game starts in <yellow>{seconds}",
+    finishMessage = "<green><bold>Game started!",
+    onFinish = { p -> p.sendMessage("Good luck!") }
 )
 ```
 
