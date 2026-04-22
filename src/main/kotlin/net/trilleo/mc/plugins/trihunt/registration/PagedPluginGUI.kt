@@ -1,15 +1,15 @@
 package net.trilleo.mc.plugins.trihunt.registration
 
-import net.trilleo.mc.plugins.trihunt.enums.FillMode
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.trilleo.mc.plugins.trihunt.enums.FillMode
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import java.util.UUID
+import java.util.*
 
 /**
  * A [PluginGUI] subclass that automatically splits content across
@@ -112,10 +112,12 @@ abstract class PagedPluginGUI(
             navRowStart + PREVIOUS_OFFSET -> {
                 if (page > 0) openPage(player, event.inventory, page - 1)
             }
+
             navRowStart + NEXT_OFFSET -> {
                 val totalPages = totalPages(getItems(player).size)
                 if (page < totalPages - 1) openPage(player, event.inventory, page + 1)
             }
+
             else -> {
                 if (slot < contentSlots) onContentClick(event, page)
             }
@@ -163,22 +165,28 @@ abstract class PagedPluginGUI(
 
         // Place navigation items on top of the filler
         if (page > 0) {
-            inventory.setItem(navRowStart + PREVIOUS_OFFSET, createNavItem(
-                Material.ARROW,
-                Component.text("Previous Page", NamedTextColor.YELLOW)
-            ))
+            inventory.setItem(
+                navRowStart + PREVIOUS_OFFSET, createNavItem(
+                    Material.ARROW,
+                    Component.text("Previous Page", NamedTextColor.YELLOW)
+                )
+            )
         }
 
-        inventory.setItem(navRowStart + PAGE_INDICATOR_OFFSET, createNavItem(
-            Material.PAPER,
-            Component.text("Page ${page + 1}/$totalPages", NamedTextColor.WHITE)
-        ))
+        inventory.setItem(
+            navRowStart + PAGE_INDICATOR_OFFSET, createNavItem(
+                Material.PAPER,
+                Component.text("Page ${page + 1}/$totalPages", NamedTextColor.WHITE)
+            )
+        )
 
         if (page < totalPages - 1) {
-            inventory.setItem(navRowStart + NEXT_OFFSET, createNavItem(
-                Material.ARROW,
-                Component.text("Next Page", NamedTextColor.YELLOW)
-            ))
+            inventory.setItem(
+                navRowStart + NEXT_OFFSET, createNavItem(
+                    Material.ARROW,
+                    Component.text("Next Page", NamedTextColor.YELLOW)
+                )
+            )
         }
     }
 

@@ -42,14 +42,22 @@ class ItemStackBuilder(@PublishedApi internal val material: Material) {
 
     private val miniMessage = MiniMessage.miniMessage()
 
-    @PublishedApi internal var itemAmount: Int = 1
-    @PublishedApi internal var displayName: String? = null
-    @PublishedApi internal var loreLines: List<String>? = null
-    @PublishedApi internal var enchantments: MutableMap<Enchantment, Int> = mutableMapOf()
-    @PublishedApi internal var isUnbreakable: Boolean = false
-    @PublishedApi internal var itemFlags: MutableList<ItemFlag> = mutableListOf()
-    @PublishedApi internal var modelData: Int? = null
-    @PublishedApi internal var metaBlock: (ItemMeta.() -> Unit)? = null
+    @PublishedApi
+    internal var itemAmount: Int = 1
+    @PublishedApi
+    internal var displayName: String? = null
+    @PublishedApi
+    internal var loreLines: List<String>? = null
+    @PublishedApi
+    internal var enchantments: MutableMap<Enchantment, Int> = mutableMapOf()
+    @PublishedApi
+    internal var isUnbreakable: Boolean = false
+    @PublishedApi
+    internal var itemFlags: MutableList<ItemFlag> = mutableListOf()
+    @PublishedApi
+    internal var modelData: Int? = null
+    @PublishedApi
+    internal var metaBlock: (ItemMeta.() -> Unit)? = null
 
     /**
      * Sets the display name of the item.

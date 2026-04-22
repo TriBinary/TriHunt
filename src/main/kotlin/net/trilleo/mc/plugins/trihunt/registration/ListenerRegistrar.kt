@@ -53,7 +53,7 @@ object ListenerRegistrar {
             } catch (_: NoSuchMethodException) {
                 throw IllegalArgumentException(
                     "${clazz.simpleName} must declare either a no-arg constructor " +
-                        "or a constructor accepting a single JavaPlugin parameter"
+                            "or a constructor accepting a single JavaPlugin parameter"
                 )
             }
         }

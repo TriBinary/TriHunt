@@ -1,11 +1,11 @@
 package net.trilleo.mc.plugins.trihunt.utils
 
-import net.trilleo.mc.plugins.trihunt.data.ServerDataManager
-import net.trilleo.mc.plugins.trihunt.utils.TeamUtil.addPlayer
-import net.trilleo.mc.plugins.trihunt.utils.TeamUtil.invalidateCache
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.trilleo.mc.plugins.trihunt.data.ServerDataManager
+import net.trilleo.mc.plugins.trihunt.utils.TeamUtil.addPlayer
+import net.trilleo.mc.plugins.trihunt.utils.TeamUtil.invalidateCache
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*

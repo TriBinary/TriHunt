@@ -1,8 +1,8 @@
 package net.trilleo.mc.plugins.trihunt.utils
 
+import com.google.gson.JsonArray
 import net.trilleo.mc.plugins.trihunt.data.PlayerData
 import net.trilleo.mc.plugins.trihunt.data.PlayerDataManager
-import com.google.gson.JsonArray
 import org.bukkit.entity.Player
 
 /**

@@ -5,13 +5,9 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.trilleo.mc.plugins.trihunt.enums.FillMode
 import net.trilleo.mc.plugins.trihunt.registration.PluginGUI
-import net.trilleo.mc.plugins.trihunt.utils.itemStack
-import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.ItemFlag
 
 class MainUI : PluginGUI(
     id = "main",

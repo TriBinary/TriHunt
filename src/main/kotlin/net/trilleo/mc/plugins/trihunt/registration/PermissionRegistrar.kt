@@ -1,5 +1,6 @@
 package net.trilleo.mc.plugins.trihunt.registration
 
+import net.trilleo.mc.plugins.trihunt.registration.PermissionRegistrar.registerAll
 import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
 import org.bukkit.plugin.java.JavaPlugin
