@@ -14,7 +14,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.meta.SkullMeta
-import java.util.UUID
+import java.util.*
 
 class MainUI : PluginGUI(
     id = "main",
@@ -22,6 +22,8 @@ class MainUI : PluginGUI(
     rows = 5,
     fillMode = FillMode.LIGHT
 ) {
+    val authorUUID = "28468a45-b78c-4968-9782-f4f893216066"
+
     override fun setup(player: Player, inventory: Inventory) {
         val startButton = itemStack(Material.GREEN_CONCRETE) {
             name("<bold><gradient:green:dark_green>Start</gradient></bold>")
@@ -31,14 +33,20 @@ class MainUI : PluginGUI(
         }
         val creditsButton = itemStack(Material.PLAYER_HEAD) {
             name("<bold><gold>Credits")
+            lore(" ", "<gray>View plugin contributors")
             meta {
                 (this as SkullMeta)
-                    .owningPlayer = Bukkit.getPlayer(UUID.fromString("28468a45-b78c-4968-9782-f4f893216066"))
+                    .owningPlayer = Bukkit.getPlayer(UUID.fromString(authorUUID))
             }
+        }
+        val settingsButton = itemStack(Material.COMMAND_BLOCK) {
+            name("<bold><dark_gray>Settings")
+            lore(" ", "<gray>Configure game settings")
         }
 
         inventory.setItem(22, startButton)
         inventory.setItem(24, creditsButton)
+        inventory.setItem(20, settingsButton)
     }
 
     override fun onClick(event: InventoryClickEvent) {
