@@ -2,10 +2,13 @@ package net.trilleo.mc.plugins.trihunt.utils
 
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.persistence.PersistentDataContainer
+import org.bukkit.persistence.PersistentDataType
 
 /**
  * DSL builder for creating [ItemStack] instances in a concise, readable way.
@@ -22,6 +25,16 @@ import org.bukkit.inventory.meta.ItemMeta
  *     enchant(Enchantment.SHARPNESS, 5)
  *     unbreakable(true)
  *     flag(ItemFlag.HIDE_ENCHANTS)
+ * }
+ * ```
+ *
+ * Use [pdc] to attach [PDCUtil]-managed persistent data to the item while
+ * still inside the builder block:
+ * ```kotlin
+ * val key = NamespacedKey(plugin, "my_key")
+ * val item = itemStack(Material.DIAMOND) {
+ *     name("<aqua>My Diamond")
+ *     pdc(key, PersistentDataType.STRING, "custom_value")
  * }
  * ```
  *
@@ -68,6 +81,9 @@ class ItemStackBuilder(@PublishedApi internal val material: Material) {
 
     @PublishedApi
     internal var metaBlock: (ItemMeta.() -> Unit)? = null
+
+    @PublishedApi
+    internal val pdcOperations: MutableList<(PersistentDataContainer) -> Unit> = mutableListOf()
 
     /**
      * Sets the display name of the item.
@@ -145,6 +161,20 @@ class ItemStackBuilder(@PublishedApi internal val material: Material) {
     }
 
     /**
+     * Attaches a persistent data entry to the item using [PDCUtil].
+     *
+     * PDC entries are applied **before** the [meta] escape-hatch block, so
+     * the [meta] block can still override them if needed.
+     *
+     * @param key   the [NamespacedKey] identifying the entry
+     * @param type  the [PersistentDataType] describing how the value is stored
+     * @param value the value to store
+     */
+    fun <P : Any, C : Any> pdc(key: NamespacedKey, type: PersistentDataType<P, C>, value: C) {
+        pdcOperations.add { container -> container.set(key, type, value) }
+    }
+
+    /**
      * Escape hatch for direct [ItemMeta] manipulation.
      *
      * The receiver block is applied to the item's meta **after** all other
@@ -173,6 +203,7 @@ class ItemStackBuilder(@PublishedApi internal val material: Material) {
         meta.isHideTooltip = isHideTooltip
         if (itemFlags.isNotEmpty()) meta.addItemFlags(*itemFlags.toTypedArray())
         modelData?.let { meta.setCustomModelData(it) }
+        pdcOperations.forEach { it(meta.persistentDataContainer) }
         metaBlock?.invoke(meta)
 
         item.itemMeta = meta
