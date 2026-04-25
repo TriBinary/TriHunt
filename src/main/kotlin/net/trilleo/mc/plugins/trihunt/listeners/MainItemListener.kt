@@ -1,6 +1,5 @@
 package net.trilleo.mc.plugins.trihunt.listeners
 
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent
 import net.trilleo.mc.plugins.trihunt.registration.GUIManager
 import net.trilleo.mc.plugins.trihunt.utils.PDCUtil
 import net.trilleo.mc.plugins.trihunt.utils.itemStack
@@ -10,7 +9,6 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
-import org.bukkit.event.inventory.InventoryMoveItemEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -74,7 +72,7 @@ class MainItemListener(private val plugin: JavaPlugin) : Listener {
     @EventHandler
     fun onPlayerDropItem(event: PlayerDropItemEvent) {
         val item = event.itemDrop.itemStack
-        if(PDCUtil.get(item, itemIdentifierKey, PersistentDataType.STRING) == mainItemIdentifier) {
+        if (PDCUtil.get(item, itemIdentifierKey, PersistentDataType.STRING) == mainItemIdentifier) {
             event.isCancelled = true
         }
     }
