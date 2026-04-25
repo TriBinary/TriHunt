@@ -3,13 +3,14 @@
 This guide covers the utility helpers provided in `net.trilleo.mc.plugins.trihunt.utils`. Each utility is designed to
 reduce boilerplate and provide commonly needed functionality out of the box.
 
-| Utility         | Description                                                   |
-|:----------------|:--------------------------------------------------------------|
-| `itemStack`     | DSL builder for creating `ItemStack` instances concisely      |
-| `CountdownUtil` | Per-player countdown with configurable display and sound      |
-| `TeamUtil`      | Custom team management with server-data persistence           |
-| `TagUtil`       | Per-player string tag management with player-data persistence |
-| `MessageUtil`   | Prefix-decorated message sender for players                   |
+| Utility         | Description                                                        |
+|:----------------|:-------------------------------------------------------------------|
+| `itemStack`     | DSL builder for creating `ItemStack` instances concisely           |
+| `CountdownUtil` | Per-player countdown with configurable display and sound           |
+| `TeamUtil`      | Custom team management with server-data persistence                |
+| `TagUtil`       | Per-player string tag management with player-data persistence      |
+| `MessageUtil`   | Prefix-decorated message sender for players                        |
+| `PDCUtil`       | Persistent data container helpers for Entity, Chunk, and ItemStack |
 
 ---
 
@@ -55,17 +56,18 @@ val item = itemStack(Material.DIAMOND_SWORD) {
 
 ### Builder Methods
 
-| Method            | Signature                   | Description                                     |
-|:------------------|:----------------------------|:------------------------------------------------|
-| `name`            | `name(String)`              | Set the display name (MiniMessage)              |
-| `lore`            | `lore(vararg String)`       | Set lore lines (each parsed with MiniMessage)   |
-| `enchant`         | `enchant(Enchantment, Int)` | Add an enchantment at the given level           |
-| `unbreakable`     | `unbreakable(Boolean)`      | Make the item unbreakable                       |
-| `hideTooltip`     | `hideTooltip(Boolean)`      | Hide the tooltip                                |
-| `amount`          | `amount(Int)`               | Set the stack size                              |
-| `flag`            | `flag(vararg ItemFlag)`     | Add one or more item flags                      |
-| `customModelData` | `customModelData(Int)`      | Set the custom model data value                 |
-| `meta`            | `meta(ItemMeta.() -> Unit)` | Escape hatch for direct `ItemMeta` manipulation |
+| Method            | Signature                                        | Description                                     |
+|:------------------|:-------------------------------------------------|:------------------------------------------------|
+| `name`            | `name(String)`                                   | Set the display name (MiniMessage)              |
+| `lore`            | `lore(vararg String)`                            | Set lore lines (each parsed with MiniMessage)   |
+| `enchant`         | `enchant(Enchantment, Int)`                      | Add an enchantment at the given level           |
+| `unbreakable`     | `unbreakable(Boolean)`                           | Make the item unbreakable                       |
+| `hideTooltip`     | `hideTooltip(Boolean)`                           | Hide the tooltip                                |
+| `amount`          | `amount(Int)`                                    | Set the stack size                              |
+| `flag`            | `flag(vararg ItemFlag)`                          | Add one or more item flags                      |
+| `customModelData` | `customModelData(Int)`                           | Set the custom model data value                 |
+| `pdc`             | `pdc(NamespacedKey, PersistentDataType<P,C>, C)` | Store a PDC entry on the item (via PDCUtil)     |
+| `meta`            | `meta(ItemMeta.() -> Unit)`                      | Escape hatch for direct `ItemMeta` manipulation |
 
 ### Escape Hatch Example
 
@@ -420,6 +422,144 @@ class JoinListener : Listener {
     fun onJoin(event: PlayerJoinEvent) {
         event.player.sendPrefixed("<green>Welcome to the server!")
     }
+}
+```
+
+---
+
+## PDCUtil
+
+`PDCUtil` provides a concise API for reading and writing values in
+[PersistentDataContainer](https://jd.papermc.io/paper/1.21/org/bukkit/persistence/PersistentDataContainer.html)s
+attached to `Entity`, `Chunk`, and `ItemStack` instances.
+
+Both `Entity` and `Chunk` implement `PersistentDataHolder` directly, so a single
+set of methods covers both. `ItemStack` requires special handling because its PDC
+lives inside its `ItemMeta`; `PDCUtil` takes care of reading and writing the meta
+automatically.
+
+All `PDCUtil` operations for `ItemStack` that mutate data call `item.itemMeta = meta`
+immediately so the item is always consistent after the call.
+
+### Usage (Entity / Chunk)
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.PDCUtil
+import org.bukkit.NamespacedKey
+import org.bukkit.persistence.PersistentDataType
+
+val key = NamespacedKey(plugin, "my_key")
+
+// Set a value
+PDCUtil.set(entity, key, PersistentDataType.STRING, "hello")
+
+// Get a value (returns null when absent or wrong type)
+val value: String? = PDCUtil.get(entity, key, PersistentDataType.STRING)
+
+// Check if a key is present
+val exists: Boolean = PDCUtil.has(entity, key)
+
+// Remove a key
+PDCUtil.remove(entity, key)
+
+// List all keys in the container
+val keys: Set<NamespacedKey> = PDCUtil.keys(entity)
+```
+
+The same four methods work identically for `Chunk`:
+
+```kotlin
+PDCUtil.set(chunk, key, PersistentDataType.INTEGER, 42)
+val count: Int? = PDCUtil.get(chunk, key, PersistentDataType.INTEGER)
+PDCUtil.has(chunk, key)
+PDCUtil.remove(chunk, key)
+PDCUtil.keys(chunk)
+```
+
+### Usage (ItemStack)
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.PDCUtil
+import org.bukkit.NamespacedKey
+import org.bukkit.persistence.PersistentDataType
+
+val key = NamespacedKey(plugin, "damage_bonus")
+
+PDCUtil.set(item, key, PersistentDataType.INTEGER, 10)
+val bonus: Int? = PDCUtil.get(item, key, PersistentDataType.INTEGER)
+PDCUtil.has(item, key)
+PDCUtil.remove(item, key)
+PDCUtil.keys(item)
+```
+
+### Methods (PersistentDataHolder — Entity, Chunk)
+
+| Method                          | Return               | Description                                                      |
+|:--------------------------------|:---------------------|:-----------------------------------------------------------------|
+| `set(holder, key, type, value)` | `Unit`               | Stores `value` under `key` in the holder's PDC                   |
+| `get(holder, key, type)`        | `C?`                 | Returns the stored value, or `null` if absent or type-mismatched |
+| `has(holder, key)`              | `Boolean`            | Returns `true` if the key exists in the holder's PDC             |
+| `remove(holder, key)`           | `Unit`               | Removes the key from the holder's PDC; no-op if absent           |
+| `keys(holder)`                  | `Set<NamespacedKey>` | Returns an immutable snapshot of all keys in the holder's PDC    |
+
+### Methods (ItemStack)
+
+| Method                        | Return               | Description                                                                |
+|:------------------------------|:---------------------|:---------------------------------------------------------------------------|
+| `set(item, key, type, value)` | `Unit`               | Stores `value` in the item's PDC; writes meta back to the item             |
+| `get(item, key, type)`        | `C?`                 | Returns the stored value, or `null` if absent, type-mismatched, or no meta |
+| `has(item, key)`              | `Boolean`            | Returns `true` if the key exists in the item's PDC                         |
+| `remove(item, key)`           | `Unit`               | Removes the key from the item's PDC; no-op if absent or no meta            |
+| `keys(item)`                  | `Set<NamespacedKey>` | Returns an immutable snapshot of all keys in the item's PDC                |
+
+### Usage (ItemStack DSL)
+
+PDC entries can be set directly inside the `itemStack` builder block using the
+`pdc` method, without needing a separate `PDCUtil.set` call after the item is
+built. PDC entries are applied **before** the `meta` escape-hatch block, so the
+`meta` block can still override them if needed.
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.itemStack
+import org.bukkit.Material
+import org.bukkit.NamespacedKey
+import org.bukkit.persistence.PersistentDataType
+
+val key = NamespacedKey(plugin, "damage_bonus")
+
+val item = itemStack(Material.DIAMOND_SWORD) {
+    name("<bold><gradient:gold:yellow>Excalibur</gradient></bold>")
+    lore("<gray>A legendary blade")
+    enchant(Enchantment.SHARPNESS, 5)
+    pdc(key, PersistentDataType.INTEGER, 20)
+}
+```
+
+### Example (Custom Item Identity)
+
+A common use-case is marking items with a unique identifier so you can
+distinguish plugin items from regular ones:
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.PDCUtil
+import net.trilleo.mc.plugins.trihunt.utils.itemStack
+import org.bukkit.Material
+import org.bukkit.NamespacedKey
+import org.bukkit.entity.Player
+import org.bukkit.persistence.PersistentDataType
+
+val itemIdKey = NamespacedKey(plugin, "item_id")
+
+// Create a marked item using the DSL
+val specialSword = itemStack(Material.DIAMOND_SWORD) {
+    name("<red>Soul Blade")
+    pdc(itemIdKey, PersistentDataType.STRING, "soul_blade")
+}
+
+// Check if an item in hand is the special sword
+fun isSpecialSword(player: Player): Boolean {
+    val held = player.inventory.itemInMainHand
+    return PDCUtil.get(held, itemIdKey, PersistentDataType.STRING) == "soul_blade"
 }
 ```
 
