@@ -53,7 +53,7 @@ class MainUI(private val plugin: JavaPlugin) : PluginGUI(
             flag(ItemFlag.HIDE_ENCHANTS)
         }
         val creditsButton = itemStack(Material.PLAYER_HEAD) {
-            name("<bold><magenta>Credits")
+            name("<bold><light_purple>Credits")
             lore(
                 " ",
                 "<dark_gray>=====================",
@@ -95,6 +95,9 @@ class MainUI(private val plugin: JavaPlugin) : PluginGUI(
         }
         if (event.slot == slotIndex.getValue("settingsButtonSlot")) {
             GUIManager.open(player, "settings")
+        }
+        if (event.slot == slotIndex.getValue("creditsButtonSlot")) {
+            GUIManager.open(player, "credits")
         }
         if (event.slot == slotIndex.getValue("startButtonSlot")) {
             player.closeInventory()
