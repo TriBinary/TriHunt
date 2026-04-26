@@ -1,10 +1,10 @@
 package net.trilleo.mc.plugins.trihunt.listeners
 
 import net.trilleo.mc.plugins.trihunt.registration.GUIManager
+import net.trilleo.mc.plugins.trihunt.utils.PDCEntryUtil
 import net.trilleo.mc.plugins.trihunt.utils.PDCUtil
 import net.trilleo.mc.plugins.trihunt.utils.itemStack
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -18,10 +18,6 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 
 class MainItemListener(private val plugin: JavaPlugin) : Listener {
-
-    public val itemIdentifierKey = NamespacedKey(plugin, "itemIdentifier")
-    public val mainItemIdentifier = "main-item"
-
     private fun createMainItem(): ItemStack {
         val mainItem = itemStack(Material.NETHER_STAR) {
             name("<bold><gold>TriHunt Menu")
@@ -31,7 +27,11 @@ class MainItemListener(private val plugin: JavaPlugin) : Listener {
             )
             enchant(Enchantment.BINDING_CURSE, 1)
             flag(ItemFlag.HIDE_ENCHANTS)
-            pdc(itemIdentifierKey, PersistentDataType.STRING, mainItemIdentifier)
+            pdc(
+                PDCEntryUtil.PDCKey(plugin).itemIdentifierKey,
+                PersistentDataType.STRING,
+                PDCEntryUtil.PDCValue().mainItemIdentifier
+            )
         }
         return mainItem
     }
@@ -41,7 +41,7 @@ class MainItemListener(private val plugin: JavaPlugin) : Listener {
     fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
         for (item in player.inventory.contents) {
-            if (item != null && PDCUtil.get(item, itemIdentifierKey, PersistentDataType.STRING) == mainItemIdentifier) {
+            if (item != null && PDCUtil.get(item, PDCEntryUtil.PDCKey(plugin).itemIdentifierKey, PersistentDataType.STRING) == PDCEntryUtil.PDCValue().mainItemIdentifier) {
                 return
             }
         }
@@ -61,7 +61,7 @@ class MainItemListener(private val plugin: JavaPlugin) : Listener {
         val player = event.player
         val item = event.item
         if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
-            if (item != null && PDCUtil.get(item, itemIdentifierKey, PersistentDataType.STRING) == mainItemIdentifier) {
+            if (item != null && PDCUtil.get(item, PDCEntryUtil.PDCKey(plugin).itemIdentifierKey, PersistentDataType.STRING) == PDCEntryUtil.PDCValue().mainItemIdentifier) {
                 event.isCancelled = true
                 GUIManager.open(player, "main")
             }
@@ -72,7 +72,7 @@ class MainItemListener(private val plugin: JavaPlugin) : Listener {
     @EventHandler
     fun onPlayerDropItem(event: PlayerDropItemEvent) {
         val item = event.itemDrop.itemStack
-        if (PDCUtil.get(item, itemIdentifierKey, PersistentDataType.STRING) == mainItemIdentifier) {
+        if (PDCUtil.get(item, PDCEntryUtil.PDCKey(plugin).itemIdentifierKey, PersistentDataType.STRING) == PDCEntryUtil.PDCValue().mainItemIdentifier) {
             event.isCancelled = true
         }
     }
