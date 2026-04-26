@@ -53,7 +53,7 @@ class MainUI(private val plugin: JavaPlugin) : PluginGUI(
             flag(ItemFlag.HIDE_ENCHANTS)
         }
         val creditsButton = itemStack(Material.PLAYER_HEAD) {
-            name("<bold><gold>Credits")
+            name("<bold><magenta>Credits")
             lore(
                 " ",
                 "<dark_gray>=====================",
