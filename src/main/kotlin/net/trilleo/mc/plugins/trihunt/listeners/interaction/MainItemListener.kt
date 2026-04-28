@@ -1,4 +1,4 @@
-package net.trilleo.mc.plugins.trihunt.listeners
+package net.trilleo.mc.plugins.trihunt.listeners.interaction
 
 import net.trilleo.mc.plugins.trihunt.registration.GUIManager
 import net.trilleo.mc.plugins.trihunt.utils.PDCEntryUtil

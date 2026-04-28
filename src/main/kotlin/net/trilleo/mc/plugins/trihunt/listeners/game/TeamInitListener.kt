@@ -1,4 +1,4 @@
-package net.trilleo.mc.plugins.trihunt.listeners
+package net.trilleo.mc.plugins.trihunt.listeners.game
 
 import net.trilleo.mc.plugins.trihunt.utils.TeamUtil
 import org.bukkit.event.EventHandler
