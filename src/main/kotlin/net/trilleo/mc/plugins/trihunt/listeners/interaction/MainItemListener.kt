@@ -38,8 +38,8 @@ class MainItemListener(private val plugin: JavaPlugin) : Listener {
 
         val mainItem = ItemManager(plugin).createMainItem()
 
-        if (player.inventory.getItem(0) == null) {
-            player.inventory.setItem(0, mainItem)
+        if (player.inventory.getItem(8) == null) {
+            player.inventory.setItem(8, mainItem)
         } else {
             player.inventory.addItem(mainItem)
         }
