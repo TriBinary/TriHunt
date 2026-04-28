@@ -76,10 +76,12 @@ class GameManager(private val plugin: JavaPlugin) {
         if (serverData.getString("gameStatus") in listOf("ready", "active")) {
             val compassItem = ItemManager(plugin).createCompassItem()
 
-            if (player.inventory.getItem(8) == null) {
-                player.inventory.setItem(8, compassItem)
-            } else {
-                player.inventory.addItem(compassItem)
+            if (TeamUtil.isInTeam(player, "hunter")) {
+                if (player.inventory.getItem(8) == null) {
+                    player.inventory.setItem(8, compassItem)
+                } else {
+                    player.inventory.addItem(compassItem)
+                }
             }
         }
     }
