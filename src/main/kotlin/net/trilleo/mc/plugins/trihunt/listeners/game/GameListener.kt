@@ -2,11 +2,9 @@ package net.trilleo.mc.plugins.trihunt.listeners.game
 
 import net.trilleo.mc.plugins.trihunt.data.ServerDataManager
 import net.trilleo.mc.plugins.trihunt.managers.GameManager
-import net.trilleo.mc.plugins.trihunt.managers.ItemManager
 import net.trilleo.mc.plugins.trihunt.utils.PDCEntryUtil
 import net.trilleo.mc.plugins.trihunt.utils.PDCUtil
 import net.trilleo.mc.plugins.trihunt.utils.TeamUtil
-import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -17,7 +15,6 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
-import kotlin.collections.contains
 
 class GameListener(private val plugin: JavaPlugin) : Listener {
     @EventHandler
@@ -61,6 +58,7 @@ class GameListener(private val plugin: JavaPlugin) : Listener {
 
         if (TeamUtil.isInTeam(player, "speedrunner")) {
             GameManager(plugin).endGame(false)
+            event.isCancelled = true
         }
     }
 
