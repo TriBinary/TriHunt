@@ -7,6 +7,8 @@ import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 class GameManager(private val plugin: JavaPlugin) {
     fun checkCondition(player: Player): Boolean {
@@ -49,8 +51,11 @@ class GameManager(private val plugin: JavaPlugin) {
         serverData.set("gameStatus", "ready")
 
         for (player in plugin.server.onlinePlayers) {
+            player.closeInventory()
+
             updatePluginItem(player)
             updatePlayerGameMode(player)
+            updatePlayerEffects(player)
         }
     }
 
@@ -92,5 +97,10 @@ class GameManager(private val plugin: JavaPlugin) {
         if (serverData.getString("gameStatus") == "inactive") {
             player.gameMode = GameMode.ADVENTURE
         }
+    }
+
+    fun updatePlayerEffects(player: Player) {
+        player.health = 20.0
+        player.addPotionEffect(PotionEffect(PotionEffectType.SATURATION, 1, 100))
     }
 }
