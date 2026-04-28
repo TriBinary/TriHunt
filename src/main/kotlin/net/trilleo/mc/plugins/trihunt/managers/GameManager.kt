@@ -111,6 +111,88 @@ class GameManager(private val plugin: JavaPlugin) {
         }
     }
 
+    fun endGame(isSpeedrunnerWin: Boolean) {
+        val serverData = ServerDataManager.get()
+
+        serverData.set("gameStatus", "inactive")
+
+        for (player in plugin.server.onlinePlayers) {
+            updatePluginItem(player)
+            updatePlayerGameMode(player)
+            updatePlayerEffects(player)
+        }
+
+        if (isSpeedrunnerWin) {
+            for (player in plugin.server.onlinePlayers) {
+                val speedrunnerTitle = Title.title(
+                    Component.text("You Win!").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
+                    Component.text("You have successfully slain the ender dragon").color(NamedTextColor.DARK_GREEN)
+                )
+                val hunterTitle = Title.title(
+                    Component.text("You Lose!").color(NamedTextColor.RED).decorate(TextDecoration.BOLD),
+                    Component.text("You failed to stop the speedrunners...").color(NamedTextColor.DARK_RED)
+                )
+                val spectatorTitle = Title.title(
+                    Component.text("Game End!").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD),
+                    Component.text("The speedrunners won").color(NamedTextColor.GRAY)
+                )
+
+                if (TeamUtil.isInTeam(player, "speedrunner")) {
+                    player.showTitle(speedrunnerTitle)
+                }
+                if (TeamUtil.isInTeam(player, "hunter")) {
+                    player.showTitle(hunterTitle)
+                }
+                if (TeamUtil.isInTeam(player, "spectator")) {
+                    player.showTitle(spectatorTitle)
+                }
+
+                player.playSound(
+                    Sound.sound(
+                        Key.key("minecraft:entity.experience_orb.pickup"),
+                        Sound.Source.MASTER,
+                        1f,
+                        1f
+                    )
+                )
+            }
+        } else {
+            for (player in plugin.server.onlinePlayers) {
+                val speedrunnerTitle = Title.title(
+                    Component.text("You Lose!").color(NamedTextColor.RED).decorate(TextDecoration.BOLD),
+                    Component.text("You failed to slay the ender dragon...").color(NamedTextColor.DARK_RED)
+                )
+                val hunterTitle = Title.title(
+                    Component.text("You Win!").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
+                    Component.text("You successfully stopped the speedrunners!").color(NamedTextColor.DARK_GREEN)
+                )
+                val spectatorTitle = Title.title(
+                    Component.text("Game End!").color(NamedTextColor.YELLOW).decorate(TextDecoration.BOLD),
+                    Component.text("The hunters won").color(NamedTextColor.GRAY)
+                )
+
+                if (TeamUtil.isInTeam(player, "speedrunner")) {
+                    player.showTitle(speedrunnerTitle)
+                }
+                if (TeamUtil.isInTeam(player, "hunter")) {
+                    player.showTitle(hunterTitle)
+                }
+                if (TeamUtil.isInTeam(player, "spectator")) {
+                    player.showTitle(spectatorTitle)
+                }
+
+                player.playSound(
+                    Sound.sound(
+                        Key.key("minecraft:entity.experience_orb.pickup"),
+                        Sound.Source.MASTER,
+                        1f,
+                        1f
+                    )
+                )
+            }
+        }
+    }
+
     fun updatePluginItem(player: Player) {
         val serverData = ServerDataManager.get()
 

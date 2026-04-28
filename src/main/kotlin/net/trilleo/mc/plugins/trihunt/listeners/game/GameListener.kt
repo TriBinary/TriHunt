@@ -55,6 +55,10 @@ class GameListener(private val plugin: JavaPlugin) : Listener {
                 item.amount = 0
             }
         }
+
+        if (TeamUtil.isInTeam(player, "speedrunner")) {
+            GameManager(plugin).endGame(false)
+        }
     }
 
     @EventHandler
