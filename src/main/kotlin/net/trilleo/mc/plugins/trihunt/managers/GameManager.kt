@@ -31,7 +31,28 @@ class GameManager(private val plugin: JavaPlugin) {
         serverData.set("gameStatus", "ready")
     }
 
-    fun updateMainItem(player: Player) {
+    fun updatePluginItem(player: Player) {
         val serverData = ServerDataManager.get()
+
+        ItemManager(plugin).clearPluginItems(player)
+
+        if (serverData.getString("gameStatus") == "inactive") {
+            val mainItem = ItemManager(plugin).createMainItem()
+
+            if (player.inventory.getItem(0) == null) {
+                player.inventory.setItem(0, mainItem)
+            } else {
+                player.inventory.addItem(mainItem)
+            }
+        }
+        if (serverData.getString("gameStatus") in listOf("ready", "active")) {
+            val compassItem = ItemManager(plugin).createCompassItem()
+
+            if (player.inventory.getItem(0) == null) {
+                player.inventory.setItem(0, compassItem)
+            } else {
+                player.inventory.addItem(compassItem)
+            }
+        }
     }
 }
