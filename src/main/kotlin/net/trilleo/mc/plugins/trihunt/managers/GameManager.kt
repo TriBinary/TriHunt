@@ -24,6 +24,9 @@ class GameManager(private val plugin: JavaPlugin) {
         val serverData = ServerDataManager.get()
 
         serverData.set("gameStatus", "inactive")
+        for (player in plugin.server.onlinePlayers) {
+            updatePluginItem(player)
+        }
     }
 
     fun prepareGame() {
@@ -33,10 +36,7 @@ class GameManager(private val plugin: JavaPlugin) {
 
         for (player in plugin.server.onlinePlayers) {
             updatePluginItem(player)
-
-            if (TeamUtil.getPlayerTeam(player)?.name == "spectator") {
-                player.gameMode = GameMode.SPECTATOR
-            }
+            updatePlayerGameMode(player)
         }
     }
 
@@ -62,6 +62,14 @@ class GameManager(private val plugin: JavaPlugin) {
             } else {
                 player.inventory.addItem(compassItem)
             }
+        }
+    }
+
+    fun updatePlayerGameMode(player: Player) {
+        if (TeamUtil.getPlayerTeam(player)?.name == "spectator") {
+            player.gameMode = GameMode.SPECTATOR
+        } else {
+            player.gameMode = GameMode.SURVIVAL
         }
     }
 }
