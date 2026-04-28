@@ -39,6 +39,7 @@ class GameManager(private val plugin: JavaPlugin) {
         serverData.set("gameStatus", "inactive")
         for (player in plugin.server.onlinePlayers) {
             updatePluginItem(player)
+            updatePlayerGameMode(player)
         }
     }
 
