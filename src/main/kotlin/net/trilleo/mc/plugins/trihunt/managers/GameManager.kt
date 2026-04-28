@@ -3,6 +3,7 @@ package net.trilleo.mc.plugins.trihunt.managers
 import net.trilleo.mc.plugins.trihunt.data.ServerDataManager
 import net.trilleo.mc.plugins.trihunt.utils.TeamUtil
 import net.trilleo.mc.plugins.trihunt.utils.sendPrefixed
+import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -29,6 +30,14 @@ class GameManager(private val plugin: JavaPlugin) {
         val serverData = ServerDataManager.get()
 
         serverData.set("gameStatus", "ready")
+
+        for (player in plugin.server.onlinePlayers) {
+            updatePluginItem(player)
+
+            if (TeamUtil.getPlayerTeam(player)?.name == "spectator") {
+                player.gameMode = GameMode.SPECTATOR
+            }
+        }
     }
 
     fun updatePluginItem(player: Player) {
