@@ -1,5 +1,7 @@
 package net.trilleo.mc.plugins.trihunt.managers
 
+import net.kyori.adventure.key.Key
+import net.kyori.adventure.sound.Sound
 import net.trilleo.mc.plugins.trihunt.data.ServerDataManager
 import net.trilleo.mc.plugins.trihunt.utils.TeamUtil
 import net.trilleo.mc.plugins.trihunt.utils.sendPrefixed
@@ -56,6 +58,15 @@ class GameManager(private val plugin: JavaPlugin) {
             updatePluginItem(player)
             updatePlayerGameMode(player)
             updatePlayerEffects(player)
+        }
+
+        for (player in plugin.server.onlinePlayers) {
+            player.playSound(Sound.sound(Key.key("minecraft:entity.experience_orb.pickup"), Sound.Source.MASTER, 1f, 1f))
+            if (TeamUtil.isInTeam(player, "speedrunner")) {
+                player.sendPrefixed("<green>Game is ready! <yellow>Punch a hunter <green>to start")
+            } else {
+                player.sendPrefixed("<green>Game is ready! Wait for starting...")
+            }
         }
     }
 
