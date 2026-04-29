@@ -1,5 +1,6 @@
 package net.trilleo.mc.plugins.trihunt.managers
 
+import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
@@ -7,6 +8,8 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
 import net.trilleo.mc.plugins.trihunt.data.ServerDataManager
+import net.trilleo.mc.plugins.trihunt.enums.DisplayLocation
+import net.trilleo.mc.plugins.trihunt.utils.CountdownUtil
 import net.trilleo.mc.plugins.trihunt.utils.TeamUtil
 import net.trilleo.mc.plugins.trihunt.utils.sendPrefixed
 import org.bukkit.Bukkit
@@ -119,6 +122,46 @@ class GameManager(private val plugin: JavaPlugin) {
 
             player.showTitle(title)
             player.playSound(Sound.sound(Key.key("minecraft:entity.ender_dragon.growl"), Sound.Source.MASTER, 1f, 1f))
+        }
+        if (serverData.getInt("speedrunnerBonusTime") > 0) {
+            for (player in plugin.server.onlinePlayers) {
+                if (TeamUtil.isInTeam(player, "hunter")) {
+                    val slownessEffect = PotionEffect(
+                        PotionEffectType.SLOWNESS,
+                        serverData.getInt("speedrunnerBonusTime") * 20,
+                        100,
+                        true
+                    )
+
+                    player.addPotionEffect(slownessEffect)
+                    CountdownUtil().start(
+                        plugin = plugin,
+                        player = player,
+                        seconds = serverData.getInt("speedrunnerBonusTime"),
+                        displayLocation = DisplayLocation.BOSS_BAR,
+                        bossBarColor = BossBar.Color.RED,
+                        message = "<red>Release in <yellow>{seconds}",
+                        sound = Sound.sound(
+                            Key.key("minecraft:entity.experience_orb.pickup"),
+                            Sound.Source.MASTER,
+                            1f,
+                            1f
+                        ),
+                        finishSound = Sound.sound(
+                            Key.key("minecraft:entity.player.levelup"),
+                            Sound.Source.MASTER,
+                            1f,
+                            1f
+                        ),
+                        onFinish = { player ->
+                            player.sendActionBar(
+                                Component.text("Hunter released!").color(NamedTextColor.RED)
+                                    .decorate(TextDecoration.BOLD)
+                            )
+                        }
+                    )
+                }
+            }
         }
     }
 
