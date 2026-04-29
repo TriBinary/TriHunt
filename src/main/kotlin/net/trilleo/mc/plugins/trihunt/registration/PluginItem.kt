@@ -1,6 +1,5 @@
 package net.trilleo.mc.plugins.trihunt.registration
 
-import net.trilleo.mc.plugins.trihunt.registration.PluginItem.Companion.ITEM_ID_KEY
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.RecipeChoice
