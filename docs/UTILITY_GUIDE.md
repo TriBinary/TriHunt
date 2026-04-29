@@ -564,3 +564,72 @@ fun isSpecialSword(player: Player): Boolean {
 ```
 
 ---
+
+## GameRuleUtil
+
+`GameRuleUtil` provides convenient helpers for reading, writing, and toggling
+Minecraft game rules on any [World](https://jd.papermc.io/paper/1.21/org/bukkit/World.html).
+All game rules — both `Boolean` rules (e.g. `KEEP_INVENTORY`, `DO_DAYLIGHT_CYCLE`) and
+`Int` rules (e.g. `RANDOM_TICK_SPEED`) — are supported through a single generic
+API. The [toggle] method is a specialisation for boolean rules that flips the
+current value without requiring the caller to check it first.
+
+### Usage
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.GameRuleUtil
+import org.bukkit.GameRule
+
+// Read a rule
+val keepInventory: Boolean? = GameRuleUtil.get(world, GameRule.KEEP_INVENTORY)
+val tickSpeed: Int? = GameRuleUtil.get(world, GameRule.RANDOM_TICK_SPEED)
+
+// Write a rule
+GameRuleUtil.set(world, GameRule.KEEP_INVENTORY, true)
+GameRuleUtil.set(world, GameRule.RANDOM_TICK_SPEED, 3)
+
+// Toggle a boolean rule (no true/false needed)
+val newValue: Boolean? = GameRuleUtil.toggle(world, GameRule.DO_DAYLIGHT_CYCLE)
+```
+
+### Methods
+
+| Method             | Signature                              | Return          | Description                                                                                              |
+|:-------------------|:---------------------------------------|:----------------|:---------------------------------------------------------------------------------------------------------|
+| `get`              | `get(world, rule: GameRule<T>)`        | `T?`            | Returns the current value of the rule, or `null` if not set                                             |
+| `set`              | `set(world, rule: GameRule<T>, value)` | `Boolean`       | Sets the rule to `value`; returns `false` if the rule is unrecognized                                   |
+| `toggle`           | `toggle(world, rule: GameRule<Boolean>)` | `Boolean?`    | Flips a boolean rule to its opposite value; returns the **new** value, or `null` if the current value could not be read |
+
+### Example (Cycle Day and Weather)
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.GameRuleUtil
+import org.bukkit.GameRule
+
+// Pause the day/night cycle and weather during a mini-game
+fun freezeWorld(world: org.bukkit.World) {
+    GameRuleUtil.set(world, GameRule.DO_DAYLIGHT_CYCLE, false)
+    GameRuleUtil.set(world, GameRule.DO_WEATHER_CYCLE, false)
+}
+
+// Restore them when the game ends
+fun unfreezeWorld(world: org.bukkit.World) {
+    GameRuleUtil.set(world, GameRule.DO_DAYLIGHT_CYCLE, true)
+    GameRuleUtil.set(world, GameRule.DO_WEATHER_CYCLE, true)
+}
+```
+
+### Example (Toggle)
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.GameRuleUtil
+import org.bukkit.GameRule
+
+// Toggle keep-inventory on command
+fun onToggleKeepInventory(world: org.bukkit.World) {
+    val newState = GameRuleUtil.toggle(world, GameRule.KEEP_INVENTORY)
+    println("keep-inventory is now $newState")
+}
+```
+
+---
