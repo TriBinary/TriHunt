@@ -22,6 +22,7 @@ The classic Manhunt experience, brought to life on your server:
 - **Smooth & Modern** — Built from the ground up with a clean, polished experience in mind.
 - **Team Selection** — Easily choose your side and jump straight into the action.
 - **In-Game Menus** — Intuitive, interactive menus make managing your game effortless.
+- **GameRule Modifier** — Change Minecraft game rules derectly in a GUI.
 
 ---
 
