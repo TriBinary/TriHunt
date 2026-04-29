@@ -9,6 +9,8 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
 import net.trilleo.mc.plugins.trihunt.data.ServerDataManager
 import net.trilleo.mc.plugins.trihunt.enums.DisplayLocation
+import net.trilleo.mc.plugins.trihunt.items.MainItem
+import net.trilleo.mc.plugins.trihunt.items.TrackerCompassItem
 import net.trilleo.mc.plugins.trihunt.utils.CountdownUtil
 import net.trilleo.mc.plugins.trihunt.utils.TeamUtil
 import net.trilleo.mc.plugins.trihunt.utils.sendPrefixed
@@ -254,7 +256,7 @@ class GameManager(private val plugin: JavaPlugin) {
         ItemManager(plugin).clearPluginItems(player)
 
         if (serverData.getString("gameStatus") == "inactive") {
-            val mainItem = ItemManager(plugin).createMainItem()
+            val mainItem = MainItem(plugin).create()
 
             if (player.inventory.getItem(8) == null) {
                 player.inventory.setItem(8, mainItem)
@@ -263,7 +265,7 @@ class GameManager(private val plugin: JavaPlugin) {
             }
         }
         if (serverData.getString("gameStatus") in listOf("ready", "active")) {
-            val compassItem = ItemManager(plugin).createCompassItem()
+            val compassItem = TrackerCompassItem(plugin).create()
 
             if (TeamUtil.isInTeam(player, "hunter")) {
                 if (player.inventory.getItem(8) == null) {
