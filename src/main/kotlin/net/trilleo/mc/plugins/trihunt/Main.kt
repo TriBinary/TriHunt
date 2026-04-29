@@ -26,6 +26,12 @@ class Main : JavaPlugin() {
         ServerDataManager.init(this)
         PlayerDataManager.init(this)
 
+        // Register custom items and recipes
+        logger.info("Registering custom items...")
+        ItemRegistrar.registerAll(this)
+        logger.info("Registering recipes...")
+        RecipeRegistrar.registerAll(this)
+
         // Register commands, listeners, GUIs and tasks
         logger.info("Registering commands...")
         CommandRegistrar.registerAll(this)
@@ -50,6 +56,9 @@ class Main : JavaPlugin() {
     override fun onDisable() {
         // Cancel all scheduled tasks
         TaskRegistrar.unregisterAll()
+
+        // Remove all registered recipes
+        RecipeRegistrar.unregisterAll()
 
         // Persist data for any players still online and server-wide data
         PlayerDataManager.saveAll()
