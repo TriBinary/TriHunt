@@ -64,6 +64,7 @@ class GameModeUI(private val plugin: JavaPlugin) : PluginGUI(
                     "<gray>Speedrunners need to kill <#7b2cbf>Ender Dragon <gray>to win"
                 )
             }
+
             "wither" -> itemStack(Material.WITHER_SKELETON_SKULL) {
                 name("<bold><red>Boss Modes")
                 lore(
@@ -73,6 +74,7 @@ class GameModeUI(private val plugin: JavaPlugin) : PluginGUI(
                     "<gray>Speedrunners need to kill <dark_gray>Wither <gray>to win"
                 )
             }
+
             "warden" -> itemStack(Material.SCULK_SHRIEKER) {
                 name("<bold><red>Boss Modes")
                 lore(
