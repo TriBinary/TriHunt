@@ -61,8 +61,14 @@ class GameListener(private val plugin: JavaPlugin) : Listener {
         }
 
         if (TeamUtil.isInTeam(player, "speedrunner")) {
-            GameManager(plugin).endGame(false)
-            event.isCancelled = true
+            if (TeamUtil.getTeam("speedrunner")?.memberCount == 1) {
+                GameManager(plugin).endGame(false)
+                event.isCancelled = true
+            } else {
+                TeamUtil.addPlayer(player, "spectator")
+                GameManager(plugin).updatePlayerGameMode(player)
+                event.isCancelled = true
+            }
         }
     }
 
