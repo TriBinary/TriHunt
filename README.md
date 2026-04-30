@@ -21,9 +21,9 @@ The classic Manhunt experience, brought to life on your server:
 ## 🌟 What Makes TriHunt Special
 
 - **Smooth & Modern** — Built from the ground up with a clean, polished experience in mind.
-- **Team Selection** — Easily choose your side and jump straight into the action.
+- **Team Selection** — Easily choose your side and jump straight into action.
 - **In-Game Menus** — Intuitive, interactive menus make managing your game effortless.
-- **GameRule Modifier** — Change Minecraft game rules derectly in a GUI.
+- **GameRule Modifier** — Change Minecraft game rules directly in a GUI.
 - **Boss Modes** — Slaying Ender Dragon is too easy? How about **Wither** or **Warden**?
 
 ---
