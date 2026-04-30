@@ -182,7 +182,7 @@ class GameManager(private val plugin: JavaPlugin) {
             for (player in plugin.server.onlinePlayers) {
                 val speedrunnerTitle = Title.title(
                     Component.text("You Win!").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
-                    Component.text("You have successfully slain the ender dragon").color(NamedTextColor.DARK_GREEN)
+                    Component.text("You have successfully slain the boss").color(NamedTextColor.DARK_GREEN)
                 )
                 val hunterTitle = Title.title(
                     Component.text("You Lose!").color(NamedTextColor.RED).decorate(TextDecoration.BOLD),
@@ -216,7 +216,7 @@ class GameManager(private val plugin: JavaPlugin) {
             for (player in plugin.server.onlinePlayers) {
                 val speedrunnerTitle = Title.title(
                     Component.text("You Lose!").color(NamedTextColor.RED).decorate(TextDecoration.BOLD),
-                    Component.text("You failed to slay the ender dragon...").color(NamedTextColor.DARK_RED)
+                    Component.text("You failed to slay the boss...").color(NamedTextColor.DARK_RED)
                 )
                 val hunterTitle = Title.title(
                     Component.text("You Win!").color(NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
