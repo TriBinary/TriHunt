@@ -24,7 +24,21 @@ The classic Manhunt experience, brought to life on your server:
 - **Team Selection** — Easily choose your side and jump straight into action.
 - **In-Game Menus** — Intuitive, interactive menus make managing your game effortless.
 - **GameRule Modifier** — Change Minecraft game rules directly in a GUI.
-- **Boss Modes** — Slaying Ender Dragon is too easy? How about **Wither** or **Warden**?
+
+---
+
+## 🎯 Game Modes
+
+### Special Modes
+
+- **Regular Mode**: The classic Manhunt experience.
+- **Infested Mode**: If a speedrunner dies, he will become a hunter.
+
+### Boss Modes
+
+- **Ender Dragon**: The classic boss. Defeat it to win.
+- **Wither**: A more challenging boss. Can you handle it?
+- **Warden**: The ultimate challenge. Only the best can defeat it.
 
 ---
 

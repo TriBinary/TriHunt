@@ -6,6 +6,7 @@ import net.trilleo.mc.plugins.trihunt.utils.PDCEntryUtil
 import net.trilleo.mc.plugins.trihunt.utils.PDCUtil
 import net.trilleo.mc.plugins.trihunt.utils.TeamUtil
 import net.trilleo.mc.plugins.trihunt.utils.sendPrefixed
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -65,8 +66,18 @@ class GameListener(private val plugin: JavaPlugin) : Listener {
                 GameManager(plugin).endGame(false)
                 event.isCancelled = true
             } else {
-                TeamUtil.addPlayer(player, "spectator")
+                val serverData = ServerDataManager.get()
+
+                if (serverData.getString("specialModes", "regular") == "infested") {
+                    TeamUtil.addPlayer(player, "hunter")
+                    for (player in Bukkit.getOnlinePlayers()) {
+                        player.sendPrefixed("<red>${player.name} has died and become a hunter!")
+                    }
+                } else {
+                    TeamUtil.addPlayer(player, "spectator")
+                }
                 GameManager(plugin).updatePlayerGameMode(player)
+                GameManager(plugin).updatePluginItem(player)
                 event.isCancelled = true
             }
         }

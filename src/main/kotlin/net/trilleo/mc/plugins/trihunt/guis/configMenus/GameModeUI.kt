@@ -10,7 +10,6 @@ import net.trilleo.mc.plugins.trihunt.enums.FillMode
 import net.trilleo.mc.plugins.trihunt.registration.GUIManager
 import net.trilleo.mc.plugins.trihunt.registration.PluginGUI
 import net.trilleo.mc.plugins.trihunt.utils.itemStack
-import net.trilleo.mc.plugins.trihunt.utils.sendPrefixed
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -46,6 +45,16 @@ class GameModeUI(private val plugin: JavaPlugin) : PluginGUI(
                     "<gray>The vanilla Manhunt experience"
                 )
                 flag(ItemFlag.HIDE_ATTRIBUTES)
+            }
+
+            "infested" -> itemStack(Material.REDSTONE_TORCH) {
+                name("<bold><gold>Special Modes")
+                lore(
+                    "   ",
+                    "<white>Selected: <red>Infested",
+                    "   ",
+                    "<gray>If a speedrunner die, he will become a hunter"
+                )
             }
 
             else -> {
@@ -132,7 +141,16 @@ class GameModeUI(private val plugin: JavaPlugin) : PluginGUI(
         }
 
         if (event.slot == modeIndex.getValue("specialModesSlot")) {
-            player.sendPrefixed("<red>More modes coming soon...")
+            val serverData = ServerDataManager.get()
+            val nextMode = when (serverData.getString("specialModes", "regular")) {
+                "regular" -> "infested"
+                "infested" -> "regular"
+
+                else -> "regular"
+            }
+
+            serverData.set("specialModes", nextMode)
+            refreshModes(event.inventory)
         }
         if (event.slot == modeIndex.getValue("bossModesSlot")) {
             val serverData = ServerDataManager.get()
