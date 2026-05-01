@@ -10,7 +10,6 @@ import net.trilleo.mc.plugins.trihunt.enums.FillMode
 import net.trilleo.mc.plugins.trihunt.registration.GUIManager
 import net.trilleo.mc.plugins.trihunt.registration.PluginGUI
 import net.trilleo.mc.plugins.trihunt.utils.itemStack
-import net.trilleo.mc.plugins.trihunt.utils.sendPrefixed
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -47,6 +46,7 @@ class GameModeUI(private val plugin: JavaPlugin) : PluginGUI(
                 )
                 flag(ItemFlag.HIDE_ATTRIBUTES)
             }
+
             "infested" -> itemStack(Material.REDSTONE_TORCH) {
                 name("<bold><gold>Special Modes")
                 lore(
