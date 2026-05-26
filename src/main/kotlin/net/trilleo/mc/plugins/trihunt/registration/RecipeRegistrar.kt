@@ -1,8 +1,6 @@
 package net.trilleo.mc.plugins.trihunt.registration
 
 import net.trilleo.mc.plugins.trihunt.data.ServerDataManager
-import net.trilleo.mc.plugins.trihunt.registration.RecipeRegistrar.registerAll
-import net.trilleo.mc.plugins.trihunt.registration.RecipeRegistrar.unregisterAll
 import org.bukkit.Bukkit
 import org.bukkit.Keyed
 import org.bukkit.NamespacedKey

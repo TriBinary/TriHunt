@@ -138,7 +138,12 @@ object LoreUtil {
                 if (currentLine.size < maxWidth) {
                     // Just add a space if there's room
                     if (currentLine.isNotEmpty()) {
-                        currentLine.add(StyledChar(' ', if (currentLine.isNotEmpty()) currentLine.last().style else Style.empty()))
+                        currentLine.add(
+                            StyledChar(
+                                ' ',
+                                if (currentLine.isNotEmpty()) currentLine.last().style else Style.empty()
+                            )
+                        )
                     }
                 }
                 continue

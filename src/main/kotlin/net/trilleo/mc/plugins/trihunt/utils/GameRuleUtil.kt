@@ -1,6 +1,5 @@
 package net.trilleo.mc.plugins.trihunt.utils
 
-import net.trilleo.mc.plugins.trihunt.utils.GameRuleUtil.toggle
 import org.bukkit.GameRule
 import org.bukkit.World
 

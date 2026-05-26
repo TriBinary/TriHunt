@@ -6,7 +6,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.trilleo.mc.plugins.trihunt.enums.FillMode
-import net.trilleo.mc.plugins.trihunt.guis.infoMenus.RecipeDetailUI.Companion.setPendingRecipe
 import net.trilleo.mc.plugins.trihunt.registration.GUIManager
 import net.trilleo.mc.plugins.trihunt.registration.PluginGUI
 import net.trilleo.mc.plugins.trihunt.utils.itemStack

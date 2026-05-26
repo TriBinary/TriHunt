@@ -2,7 +2,6 @@ package net.trilleo.mc.plugins.trihunt.utils
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
-import net.trilleo.mc.plugins.trihunt.utils.MessageUtil.init
 import org.bukkit.entity.Player
 
 /**
