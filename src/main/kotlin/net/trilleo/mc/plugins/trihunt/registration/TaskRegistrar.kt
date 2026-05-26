@@ -1,7 +1,5 @@
 package net.trilleo.mc.plugins.trihunt.registration
 
-import net.trilleo.mc.plugins.trihunt.registration.TaskRegistrar.registerAll
-import net.trilleo.mc.plugins.trihunt.registration.TaskRegistrar.unregisterAll
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 

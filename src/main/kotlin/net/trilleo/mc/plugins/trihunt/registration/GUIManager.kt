@@ -1,7 +1,6 @@
 package net.trilleo.mc.plugins.trihunt.registration
 
 import net.trilleo.mc.plugins.trihunt.enums.FillMode
-import net.trilleo.mc.plugins.trihunt.registration.GUIManager.open
 import net.trilleo.mc.plugins.trihunt.utils.itemStack
 import org.bukkit.Bukkit
 import org.bukkit.Material
