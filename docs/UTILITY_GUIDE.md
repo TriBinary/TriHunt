@@ -11,6 +11,7 @@ reduce boilerplate and provide commonly needed functionality out of the box.
 | `TagUtil`       | Per-player string tag management with player-data persistence      |
 | `MessageUtil`   | Prefix-decorated message sender for players                        |
 | `PDCUtil`       | Persistent data container helpers for Entity, Chunk, and ItemStack |
+| `LoreUtil`      | Word-aware lore text wrapping with MiniMessage and style carry-over |
 
 ---
 
@@ -629,6 +630,79 @@ import org.bukkit.GameRule
 fun onToggleKeepInventory(world: org.bukkit.World) {
     val newState = GameRuleUtil.toggle(world, GameRule.KEEP_INVENTORY)
     println("keep-inventory is now $newState")
+}
+```
+
+---
+
+## LoreUtil
+
+Item lore in Minecraft has a default purple italic style and a fixed width. Writing long descriptions requires
+manually splitting text into lines, resetting styles, and carrying formatting across line breaks. `LoreUtil`
+automates all of this: it takes a MiniMessage-formatted string, word-wraps it to a configurable width, resets
+Minecraft's default italic styling, and carries color/decoration across wrapped lines.
+
+### Key Features
+
+| Feature               | Description                                                              |
+|:----------------------|:-------------------------------------------------------------------------|
+| Word-aware wrapping   | Breaks lines at word boundaries; force-breaks words exceeding max width  |
+| Configurable width    | Default 40 characters per line; adjustable via `maxWidth` parameter      |
+| Style carry-over      | Colors and decorations carry across wrapped lines automatically          |
+| Explicit newlines     | Supports `\n` and `<newline>` for forced line breaks                     |
+| Italic reset          | Each line neutralizes Minecraft's default purple italic lore styling     |
+| MiniMessage parsing   | Full MiniMessage tag support (`<gray>`, `<bold>`, `<gradient>`, etc.)    |
+
+### Basic Usage
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.LoreUtil
+
+// Wrap a long description at the default 40-character width
+val lines = LoreUtil.wrapLore("<gray>A long description text that will be automatically wrapped at word boundaries.")
+
+// Wrap with a narrower width
+val narrow = LoreUtil.wrapLore("<red>Warning: dangerous item!", maxWidth = 30)
+```
+
+### Explicit Newlines
+
+Force a line break with `\n` or the `<newline>` MiniMessage tag:
+
+```kotlin
+val lines = LoreUtil.wrapLore("<gray>Line one\nLine two")
+val lines2 = LoreUtil.wrapLore("<gray>Line one<newline>Line two")
+```
+
+### Integration with ItemStack DSL
+
+`LoreUtil` pairs naturally with the `itemStack` DSL when you need wrapped lore:
+
+```kotlin
+import net.trilleo.mc.plugins.trihunt.utils.itemStack
+import net.trilleo.mc.plugins.trihunt.utils.LoreUtil
+import org.bukkit.Material
+
+val item = itemStack(Material.DIAMOND_SWORD) {
+    name("<bold><gradient:gold:yellow>Excalibur</gradient></bold>")
+    meta {
+        lore(LoreUtil.wrapLore("<gray>A legendary blade forged in the heart of a dying star. Its edge never dulls."))
+    }
+}
+```
+
+### API Reference
+
+```kotlin
+object LoreUtil {
+    /**
+     * Wraps a MiniMessage-formatted string into multiple lore-ready Component lines.
+     *
+     * @param text the MiniMessage-formatted input string
+     * @param maxWidth maximum number of visible characters per line (default 40)
+     * @return a list of Component lines suitable for use as item lore
+     */
+    fun wrapLore(text: String, maxWidth: Int = 40): List<Component>
 }
 ```
 
